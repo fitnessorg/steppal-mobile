@@ -18,3 +18,21 @@ be thrown away. Please put your effort into `TODO(contributor)` tasks instead â€
    if they don't, that's itself worth a small PR.
 3. Comment on the matching GitHub issue (or open one) before starting, so two people don't build the
    same thing.
+
+## Branch naming
+
+```
+<type>/<short-description>
+```
+
+Examples: `feat/pot-detail-leaderboard`, `fix/otp-resend-timer`, `chore/upgrade-expo-sdk`.
+
+## Commit messages
+
+[Conventional Commits](https://www.conventionalcommits.org/):
+
+```
+feat(pots): add pot detail screen
+fix(auth): correct OTP resend countdown
+chore(deps): bump expo-router
+```
