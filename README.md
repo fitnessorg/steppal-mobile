@@ -107,3 +107,20 @@ npm start
 ```
 
 ...and keep the app open on your phone.
+
+## Environment variables
+
+Later phases add a `.env.example` for things like the API base URL and step-source mode
+(`MockStepSource` vs. `HealthConnectStepSource`). Nothing needs `.env` yet at this stage — this section
+will be filled in as those phases land. `.env` is gitignored; never commit real secrets.
+
+## Useful scripts
+
+| Command                 | What it does                                              |
+| ------------------------ | ----------------------------------------------------------- |
+| `npm start`             | Start the Metro dev server                                |
+| `npm run android`       | Start dev server and open on a connected device/emulator  |
+| `npm run lint`          | ESLint                                                     |
+| `npm run format`        | Prettier — writes fixes                                   |
+| `npm run format:check`  | Prettier — check only (used in CI)                         |
+| `npm run typecheck`     | TypeScript, no emit                                        |
