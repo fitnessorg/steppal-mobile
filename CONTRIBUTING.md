@@ -36,3 +36,16 @@ feat(pots): add pot detail screen
 fix(auth): correct OTP resend countdown
 chore(deps): bump expo-router
 ```
+
+## Pull requests
+
+- Keep PRs scoped to one `TODO(contributor)` task where possible — small PRs get reviewed faster.
+- Run `npm run lint`, `npm run format:check`, and `npm run typecheck` before opening the PR; CI runs
+  the same checks.
+- Describe what you tested manually (this is a mobile app — most of it can't be unit tested
+  meaningfully without a device or emulator).
+- Every API call must go through `@steppal/sdk`. If you find yourself wanting to `fetch()` the backend
+  directly, that almost always means the SDK is missing something — open an issue on `steppal-core`
+  instead of working around it here.
+- If your change touches navigation structure, the auth flow, or the step-sync contract
+  (`StepSource`), flag that explicitly in the PR description — these are easy to get subtly wrong.
