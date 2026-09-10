@@ -49,3 +49,18 @@ chore(deps): bump expo-router
   instead of working around it here.
 - If your change touches navigation structure, the auth flow, or the step-sync contract
   (`StepSource`), flag that explicitly in the PR description — these are easy to get subtly wrong.
+
+## Local setup
+
+See the [README](./README.md) for the full first-time setup (EAS development build, running on an
+Android phone). If you don't have an Android device, set the step source to `MockStepSource` — see the
+`StepSource` interface and its `TODO(contributor)`-marked `HealthKitStepSource` counterpart for how step
+data is abstracted.
+
+## Code style
+
+- TypeScript strict mode is on — don't work around it with `any` or `@ts-ignore` without a strong
+  reason.
+- No raw `fetch` calls to the StepPal API — always go through `@steppal/sdk`.
+- No new dependencies for something the stack already covers (TanStack Query for server state, Zustand
+  for local state) unless you've checked with a maintainer first.
