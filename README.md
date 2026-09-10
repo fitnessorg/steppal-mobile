@@ -124,3 +124,26 @@ will be filled in as those phases land. `.env` is gitignored; never commit real 
 | `npm run format`        | Prettier — writes fixes                                   |
 | `npm run format:check`  | Prettier — check only (used in CI)                         |
 | `npm run typecheck`     | TypeScript, no emit                                        |
+
+## Tech stack
+
+- **Expo** (managed workflow, development build) + **expo-router** (file-based navigation)
+- **NativeWind** (Tailwind classes for React Native styling)
+- **TanStack Query** for server state, **Zustand** for local state
+- **`react-native-health-connect`** for Android step data, behind a `StepSource` interface so an
+  iOS/HealthKit implementation can be added later without touching call sites
+- **expo-secure-store** for auth tokens
+- **`@steppal/sdk`** for all backend calls
+
+## Project structure
+
+```
+app/                  expo-router screens (file-based routing)
+CONTRIBUTING-TASKS.md every TODO(contributor) as a ready-to-file issue
+```
+
+(`lib/` for the `StepSource` interface and SDK client setup arrives in later phases.)
+
+## License
+
+MIT — see [LICENSE](./LICENSE).
