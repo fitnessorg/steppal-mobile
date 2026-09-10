@@ -26,3 +26,14 @@ fast JavaScript-only dev server (`npm start`) without rebuilding, the same way y
 
 You only need to rebuild the development build when a _native_ dependency changes (a new native module,
 a permission, an `app.json` native config change) — not when you change React code.
+
+## Prerequisites
+
+- **Node.js 20+** and npm
+- An **Expo account** (free) — sign up at [expo.dev](https://expo.dev)
+- An **Android phone** with USB debugging, or an Android emulator
+- Windows, macOS, or Linux — this guide uses generic commands that work on all three
+
+You do **not** need Android Studio installed to build with EAS (Expo's cloud build service does the
+native build for you). You only need Android Studio if you want to build locally, which this guide
+doesn't cover.
