@@ -68,3 +68,21 @@ npx eas-cli init
 
 This creates a project on your Expo account and writes an `extra.eas.projectId` into `app.json`. You
 only need to do this once per clone/fork.
+
+## 4. Build a development client for your phone
+
+```bash
+npx eas-cli build --profile development --platform android
+```
+
+This uploads your code to Expo's cloud build servers and compiles a real Android `.apk` with all native
+modules included — takes roughly 10–20 minutes the first time. When it's done, the terminal (and the
+[expo.dev](https://expo.dev) build page) will give you a link/QR code to download the `.apk`.
+
+### Installing the APK on your phone
+
+1. On your Android phone, open the build link from a browser (or scan the QR code EAS prints).
+2. Download the `.apk`. Android will warn about installing from an unknown source — allow it for this
+   file. This is normal for development builds; it's not a Play Store app yet.
+3. Open the installed app once — you'll see a small "development client" screen, not your app yet.
+   That's expected; it's waiting for a dev server to connect to.
