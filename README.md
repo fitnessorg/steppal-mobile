@@ -37,3 +37,16 @@ a permission, an `app.json` native config change) — not when you change React 
 You do **not** need Android Studio installed to build with EAS (Expo's cloud build service does the
 native build for you). You only need Android Studio if you want to build locally, which this guide
 doesn't cover.
+
+## 1. Clone and install
+
+```bash
+git clone <this-repo-url>
+cd steppal-mobile
+npm install
+```
+
+This project's `.npmrc` sets `legacy-peer-deps=true`. Some Expo SDK 57 packages currently ship peer
+dependency ranges that npm's default (strict) resolver rejects even though the versions are compatible
+in practice — this is a known upstream quirk, not a project-specific hack. `npm ci`/`npm install` will
+pick this setting up automatically.
