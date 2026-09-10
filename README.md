@@ -15,3 +15,14 @@ package (from the `steppal-core` repo) — there is no raw `fetch` to the API an
 The UI is intentionally plain — no design polish, no animations, no custom components beyond what's
 needed to show correct data and correct states. It will be redesigned later; right now it exists to
 prove the app works.
+
+## Why a "development build" and not Expo Go?
+
+This app uses native modules (like `react-native-health-connect` for reading step data) that aren't
+included in the stock Expo Go app you'd download from the Play Store. So instead of Expo Go, you build
+your **own** custom version of the Expo client — called a _development build_ — that has those native
+modules baked in. You install that once on your phone, and after that you can keep using the normal
+fast JavaScript-only dev server (`npm start`) without rebuilding, the same way you would with Expo Go.
+
+You only need to rebuild the development build when a _native_ dependency changes (a new native module,
+a permission, an `app.json` native config change) — not when you change React code.
