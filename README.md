@@ -86,3 +86,24 @@ modules included — takes roughly 10–20 minutes the first time. When it's don
    file. This is normal for development builds; it's not a Play Store app yet.
 3. Open the installed app once — you'll see a small "development client" screen, not your app yet.
    That's expected; it's waiting for a dev server to connect to.
+
+## 5. Start the dev server
+
+```bash
+npm start
+```
+
+This prints a QR code. With the StepPal development client app open on your phone (same Wi-Fi network
+as your computer), scan the QR code from inside the app (there's a scan button in the dev client), or
+type the URL manually. The app will load and connect — from here on, editing and saving any file
+hot-reloads on your phone in under a second, no rebuild needed.
+
+## Everyday development after the first build
+
+You only need to redo steps 4 (EAS build) when native config changes. Day to day:
+
+```bash
+npm start
+```
+
+...and keep the app open on your phone.
