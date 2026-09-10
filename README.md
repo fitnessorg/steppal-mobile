@@ -116,14 +116,14 @@ will be filled in as those phases land. `.env` is gitignored; never commit real 
 
 ## Useful scripts
 
-| Command                 | What it does                                              |
-| ------------------------ | ----------------------------------------------------------- |
-| `npm start`             | Start the Metro dev server                                |
-| `npm run android`       | Start dev server and open on a connected device/emulator  |
-| `npm run lint`          | ESLint                                                     |
-| `npm run format`        | Prettier — writes fixes                                   |
-| `npm run format:check`  | Prettier — check only (used in CI)                         |
-| `npm run typecheck`     | TypeScript, no emit                                        |
+| Command                | What it does                                             |
+| ---------------------- | -------------------------------------------------------- |
+| `npm start`            | Start the Metro dev server                               |
+| `npm run android`      | Start dev server and open on a connected device/emulator |
+| `npm run lint`         | ESLint                                                   |
+| `npm run format`       | Prettier — writes fixes                                  |
+| `npm run format:check` | Prettier — check only (used in CI)                       |
+| `npm run typecheck`    | TypeScript, no emit                                      |
 
 ## Tech stack
 
