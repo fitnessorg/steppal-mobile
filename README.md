@@ -50,3 +50,21 @@ This project's `.npmrc` sets `legacy-peer-deps=true`. Some Expo SDK 57 packages 
 dependency ranges that npm's default (strict) resolver rejects even though the versions are compatible
 in practice — this is a known upstream quirk, not a project-specific hack. `npm ci`/`npm install` will
 pick this setting up automatically.
+
+## 2. Log in to Expo/EAS
+
+```bash
+npx eas-cli login
+```
+
+If you don't have an Expo account yet, create one first at [expo.dev/signup](https://expo.dev/signup)
+(or run `npx eas-cli register`).
+
+## 3. Link this project to an EAS project
+
+```bash
+npx eas-cli init
+```
+
+This creates a project on your Expo account and writes an `extra.eas.projectId` into `app.json`. You
+only need to do this once per clone/fork.
