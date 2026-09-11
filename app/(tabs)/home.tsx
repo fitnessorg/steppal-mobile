@@ -1,7 +1,16 @@
 import { useState } from 'react';
 import { Pressable, ScrollView, Text, View } from 'react-native';
 import { router } from 'expo-router';
-import { Body, Card, DayGrid, Label, ProgressBar, Screen } from '../../src/components/ui';
+import {
+  Body,
+  Card,
+  DayGrid,
+  Label,
+  ProgressBar,
+  Screen,
+  ThemeToggle,
+  Wordmark,
+} from '../../src/components/ui';
 import { activePot, lastSynced, naira, steps, todaySteps, user, week } from '../../src/mock/data';
 
 export default function Home() {
@@ -14,10 +23,15 @@ export default function Home() {
 
   return (
     <Screen>
+      {/* ---- app bar ---- */}
+      <View className="flex-row items-center justify-between px-5 pt-2 pb-1">
+        <Wordmark />
+        <ThemeToggle />
+      </View>
+
       <ScrollView contentContainerClassName="px-5 pb-10" showsVerticalScrollIndicator={false}>
-        {/* ---- header ---- */}
-        <View className="flex-row items-center justify-between pt-4">
-          <View>
+        <View className="flex-row items-end justify-between pt-5">
+          <View className="flex-1 pr-3">
             <Label>Wednesday</Label>
             <Text className="mt-1 font-display text-lg text-ink">Morning, {user.name}</Text>
           </View>
@@ -30,7 +44,7 @@ export default function Home() {
         </View>
 
         {/* ---- today's steps: the number people open the app for ---- */}
-        <Card className="mt-6">
+        <Card className="mt-5">
           <Label>Steps today</Label>
           <Text className="mt-2 font-displayBlack text-[56px] leading-[58px] text-ink">
             {steps(todaySteps)}
@@ -48,8 +62,12 @@ export default function Home() {
         <Pressable onPress={() => router.push(`/pot/${activePot.id}`)} className="active:opacity-80">
           <Card className="mt-3">
             <View className="flex-row items-center justify-between">
-              <Label tone="flame">Day {activePot.dayOf} of {activePot.totalDays}</Label>
-              <Text className="font-bodyMed text-[12px] text-money">{naira(activePot.potKobo)} pot</Text>
+              <Label tone="flame">
+                Day {activePot.dayOf} of {activePot.totalDays}
+              </Label>
+              <Text className="font-bodyMed text-[12px] text-money">
+                {naira(activePot.potKobo)} pot
+              </Text>
             </View>
             <Text className="mt-3 font-display text-lg text-ink">{activePot.name}</Text>
             <Body dim className="mt-1">

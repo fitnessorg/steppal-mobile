@@ -2,23 +2,26 @@ import { useState } from 'react';
 import { Alert, Pressable, ScrollView, Text, TextInput, View } from 'react-native';
 import { router } from 'expo-router';
 import { Body, Button, Card, H1, Label, Screen } from '../../src/components/ui';
-import { C } from '../../src/theme';
+import { usePalette } from '../../src/theme';
 import type { PotMode } from '../../src/mock/data';
 
 const MODES: { key: PotMode; title: string; blurb: string }[] = [
   {
     key: 'forfeit',
     title: 'Forfeit pot',
-    blurb: 'Everyone sets their own goal. Miss a day, forfeit into the pot. Everyone who hits all seven splits it.',
+    blurb:
+      'Everyone sets their own goal. Miss a day, forfeit into the pot. Everyone who hits all seven splits it.',
   },
   {
     key: 'winner_takes_all',
     title: 'Winner takes all',
-    blurb: 'Most steps at the end of the week takes everything. Best when everyone walks about the same.',
+    blurb:
+      'Most steps at the end of the week takes everything. Best when everyone walks about the same.',
   },
 ];
 
 export default function CreatePot() {
+  const C = usePalette();
   const [name, setName] = useState('');
   const [mode, setMode] = useState<PotMode>('forfeit');
   const [stake, setStake] = useState('5000');
@@ -66,9 +69,7 @@ export default function CreatePot() {
               <Pressable key={m.key} onPress={() => setMode(m.key)} className="active:opacity-80">
                 <Card className={on ? 'border border-accent' : 'border border-transparent'}>
                   <View className="flex-row items-center justify-between">
-                    <Text
-                      className={`font-bodyBold text-[15px] ${on ? 'text-accent' : 'text-ink'}`}
-                    >
+                    <Text className={`font-bodyBold text-[15px] ${on ? 'text-accent' : 'text-ink'}`}>
                       {m.title}
                     </Text>
                     <View

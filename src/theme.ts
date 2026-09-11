@@ -1,10 +1,26 @@
+import { useColorScheme } from 'nativewind';
+
 /**
- * Colour and type tokens, mirrored from tailwind.config.js.
+ * Raw palette values, mirrored from global.css.
  *
- * NativeWind classes cover most styling; this is for the places that need a
- * raw value — navigation options, StatusBar, SVG-ish props.
+ * NativeWind classes cover the UI; this is for the handful of places that
+ * need a literal — navigation options, StatusBar, inline style props.
  */
-export const C = {
+export const LIGHT = {
+  ground: '#F5F4F1',
+  surface: '#FFFFFF',
+  surface2: '#E3E0D9',
+  ink: '#14120F',
+  inkSoft: '#56514A',
+  inkFaint: '#8A847A',
+  accent: '#C4DE18',
+  accentInk: '#14120F',
+  flame: '#FF4A1C',
+  money: '#C2551F',
+  danger: '#C4382F',
+} as const;
+
+export const DARK = {
   ground: '#0C0A08',
   surface: '#16130F',
   surface2: '#241E18',
@@ -17,6 +33,12 @@ export const C = {
   money: '#E8875A',
   danger: '#E5645C',
 } as const;
+
+/** Palette for whichever theme is live. */
+export function usePalette() {
+  const { colorScheme } = useColorScheme();
+  return colorScheme === 'light' ? LIGHT : DARK;
+}
 
 export const F = {
   display: 'Unbounded_700Bold',

@@ -1,5 +1,6 @@
-import { Pressable, Text, View, type ViewProps } from 'react-native';
+import { Image, Pressable, Text, View, type ViewProps } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
+import { useColorScheme } from 'nativewind';
 
 /* ------------------------------------------------------------------ Screen */
 
@@ -11,18 +12,84 @@ export function Screen({ children }: { children: React.ReactNode }) {
   );
 }
 
+/* -------------------------------------------------------------------- Logo */
+
+/**
+ * The mark is dark artwork on transparency, so it needs inverting on the dark
+ * ground. `tintColor` recolours it wholesale, which is right for a small mark —
+ * at this size it reads as an icon, not a product shot.
+ */
+export function Logo({ size = 26 }: { size?: number }) {
+  const { colorScheme } = useColorScheme();
+  return (
+    <Image
+      source={require('../../assets/steppal-mark.png')}
+      style={{
+        width: size * 1.45,
+        height: size,
+        resizeMode: 'contain',
+        tintColor: colorScheme === 'light' ? '#14120F' : '#F7F2E9',
+      }}
+    />
+  );
+}
+
+export function Wordmark({ size = 26 }: { size?: number }) {
+  return (
+    <View className="flex-row items-center gap-2">
+      <Logo size={size} />
+      <Text className="font-displayBlack text-[15px] tracking-tight text-ink">StepPal</Text>
+    </View>
+  );
+}
+
+/* ------------------------------------------------------------- ThemeToggle */
+
+/**
+ * Three states, matching how the OS works: explicit light, explicit dark, or
+ * follow the system. A two-way switch strands anyone who wants to go back to
+ * following their phone.
+ *
+ * TODO(contributor): persist the choice
+ * The selection resets on app restart. Store it (expo-secure-store is already
+ * a dependency, or add async-storage) and apply it before first paint.
+ * difficulty: easy
+ */
+export function ThemeToggle() {
+  const { colorScheme, setColorScheme } = useColorScheme();
+  const next = { light: 'dark', dark: 'system', system: 'light' } as const;
+  const label = { light: 'Light', dark: 'Dark', system: 'Auto' } as const;
+  const current = (colorScheme ?? 'system') as keyof typeof next;
+
+  return (
+    <Pressable
+      accessibilityRole="button"
+      accessibilityLabel={`Theme: ${label[current]}. Tap to change.`}
+      onPress={() => setColorScheme(next[current])}
+      className="rounded-full border border-surface2 px-3 py-1.5 active:opacity-70"
+    >
+      <Text className="font-bodyMed text-[11px] uppercase tracking-[1.5px] text-inkSoft">
+        {label[current]}
+      </Text>
+    </Pressable>
+  );
+}
+
 /* -------------------------------------------------------------------- Text */
 
 export function H1({ children }: { children: React.ReactNode }) {
   return <Text className="font-displayBlack text-3xl leading-tight text-ink">{children}</Text>;
 }
 
-export function H2({ children }: { children: React.ReactNode }) {
-  return <Text className="font-display text-xl leading-tight text-ink">{children}</Text>;
-}
-
-export function Label({ children, tone }: { children: React.ReactNode; tone?: 'accent' | 'flame' }) {
-  const color = tone === 'accent' ? 'text-accent' : tone === 'flame' ? 'text-flame' : 'text-inkFaint';
+export function Label({
+  children,
+  tone,
+}: {
+  children: React.ReactNode;
+  tone?: 'accent' | 'flame';
+}) {
+  const color =
+    tone === 'accent' ? 'text-accent' : tone === 'flame' ? 'text-flame' : 'text-inkFaint';
   return (
     <Text className={`font-bodyMed text-[11px] uppercase tracking-[2px] ${color}`}>{children}</Text>
   );
@@ -38,7 +105,9 @@ export function Body({
   className?: string;
 }) {
   return (
-    <Text className={`font-body text-[15px] leading-6 ${dim ? 'text-inkSoft' : 'text-ink'} ${className}`}>
+    <Text
+      className={`font-body text-[15px] leading-6 ${dim ? 'text-inkSoft' : 'text-ink'} ${className}`}
+    >
       {children}
     </Text>
   );
@@ -68,8 +137,12 @@ export function Button({
   disabled?: boolean;
 }) {
   const bg =
-    tone === 'accent' ? 'bg-accent' : tone === 'flame' ? 'bg-flame' : 'bg-transparent border border-surface2';
-  const fg = tone === 'ghost' ? 'text-ink' : tone === 'flame' ? 'text-ink' : 'text-accentInk';
+    tone === 'accent'
+      ? 'bg-accent'
+      : tone === 'flame'
+        ? 'bg-flame'
+        : 'border border-surface2 bg-transparent';
+  const fg = tone === 'ghost' ? 'text-ink' : tone === 'flame' ? 'text-white' : 'text-accentInk';
 
   return (
     <Pressable
@@ -96,18 +169,13 @@ export function ProgressBar({ value }: { value: number }) {
 
 /* ----------------------------------------------------------------- DayGrid */
 
-/**
- * Seven squares, one per day. Filled = goal met. This is the single clearest
- * picture of how the week is going, so it appears on Home and on pot detail.
- */
+/** Seven squares, filled where the goal was met. The clearest read on a week. */
 export function DayGrid({ days }: { days: { day: string; goalMet: boolean }[] }) {
   return (
     <View className="flex-row justify-between">
       {days.map((d, i) => (
         <View key={i} className="items-center gap-2">
-          <View
-            className={`h-9 w-9 rounded-lg ${d.goalMet ? 'bg-accent' : 'bg-surface2'}`}
-          />
+          <View className={`h-9 w-9 rounded-lg ${d.goalMet ? 'bg-accent' : 'bg-surface2'}`} />
           <Text className="font-body text-[11px] text-inkFaint">{d.day}</Text>
         </View>
       ))}

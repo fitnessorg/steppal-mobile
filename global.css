@@ -1,3 +1,47 @@
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
+
+/*
+  Theme tokens, same structure as the web app: one set of semantic names,
+  redefined under .dark. Components use a single class (`bg-ground`) rather
+  than `bg-x dark:bg-y` everywhere, so adding a colour means editing one file.
+
+  Values are space-separated RGB so Tailwind's alpha modifiers still work
+  (`bg-ground/80`).
+*/
+@layer base {
+  :root {
+    --ground: 245 244 241;
+    --surface: 255 255 255;
+    --surface2: 227 224 217;
+
+    --ink: 20 18 15;
+    --inkSoft: 86 81 74;
+    --inkFaint: 138 132 122;
+
+    --accent: 196 222 24;
+    --accentInk: 20 18 15;
+
+    --flame: 255 74 28;
+    --money: 194 85 31;
+    --danger: 196 56 47;
+  }
+
+  .dark:root {
+    --ground: 12 10 8;
+    --surface: 22 19 15;
+    --surface2: 36 30 24;
+
+    --ink: 247 242 233;
+    --inkSoft: 169 160 147;
+    --inkFaint: 107 100 89;
+
+    --accent: 214 240 53;
+    --accentInk: 12 10 8;
+
+    --flame: 255 74 28;
+    --money: 232 135 90;
+    --danger: 229 100 92;
+  }
+}

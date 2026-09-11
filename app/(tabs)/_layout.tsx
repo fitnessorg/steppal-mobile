@@ -1,58 +1,68 @@
+import { View } from 'react-native';
 import { Tabs } from 'expo-router';
-import { Text, View } from 'react-native';
-import { C, F } from '../../src/theme';
+import { F, usePalette } from '../../src/theme';
 
 /**
- * Label-only tab bar with a small active bar above the word. No icon library
- * is installed, and honestly four words read more clearly than four ambiguous
- * glyphs would.
+ * Labels go in `tabBarLabel`, not `tabBarIcon`. The icon slot is narrow, so
+ * putting text there wraps "Wallet" onto two lines — which is exactly what it
+ * did before this fix.
+ *
+ * The icon slot now holds only a 3px accent dash marking the active tab.
  */
-function TabLabel({ label, focused }: { label: string; focused: boolean }) {
-  return (
-    <View className="items-center gap-1.5">
-      <View className={`h-[3px] w-6 rounded-full ${focused ? 'bg-accent' : 'bg-transparent'}`} />
-      <Text
-        style={{ fontFamily: focused ? F.bodyBold : F.body }}
-        className={`text-[12px] ${focused ? 'text-ink' : 'text-inkFaint'}`}
-      >
-        {label}
-      </Text>
-    </View>
-  );
-}
-
 export default function TabsLayout() {
+  const C = usePalette();
+
   return (
     <Tabs
       screenOptions={{
         headerShown: false,
-        tabBarShowLabel: false,
         sceneStyle: { backgroundColor: C.ground },
+        tabBarActiveTintColor: C.ink,
+        tabBarInactiveTintColor: C.inkFaint,
+        tabBarLabelStyle: {
+          fontFamily: F.bodyMed,
+          fontSize: 11.5,
+          marginTop: 4,
+          includeFontPadding: false,
+        },
+        tabBarIconStyle: { height: 3, marginTop: 2 },
+        tabBarItemStyle: { paddingVertical: 0 },
         tabBarStyle: {
           backgroundColor: C.surface,
           borderTopColor: C.surface2,
           borderTopWidth: 1,
-          height: 74,
-          paddingTop: 10,
+          height: 76,
+          paddingTop: 12,
+          paddingBottom: 18,
         },
       }}
     >
-      <Tabs.Screen
-        name="home"
-        options={{ tabBarIcon: ({ focused }) => <TabLabel label="Today" focused={focused} /> }}
-      />
-      <Tabs.Screen
-        name="pots"
-        options={{ tabBarIcon: ({ focused }) => <TabLabel label="Pots" focused={focused} /> }}
-      />
-      <Tabs.Screen
-        name="wallet"
-        options={{ tabBarIcon: ({ focused }) => <TabLabel label="Wallet" focused={focused} /> }}
-      />
-      <Tabs.Screen
-        name="profile"
-        options={{ tabBarIcon: ({ focused }) => <TabLabel label="You" focused={focused} /> }}
-      />
+      {(
+        [
+          ['home', 'Today'],
+          ['pots', 'Pots'],
+          ['wallet', 'Wallet'],
+          ['profile', 'You'],
+        ] as const
+      ).map(([name, title]) => (
+        <Tabs.Screen
+          key={name}
+          name={name}
+          options={{
+            title,
+            tabBarIcon: ({ focused }) => (
+              <View
+                style={{
+                  height: 3,
+                  width: 20,
+                  borderRadius: 2,
+                  backgroundColor: focused ? C.accent : 'transparent',
+                }}
+              />
+            ),
+          }}
+        />
+      ))}
     </Tabs>
   );
 }

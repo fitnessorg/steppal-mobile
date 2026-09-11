@@ -5,20 +5,21 @@ import { Stack } from 'expo-router';
 import { StatusBar } from 'expo-status-bar';
 import * as SplashScreen from 'expo-splash-screen';
 import { useFonts } from 'expo-font';
-import {
-  Unbounded_700Bold,
-  Unbounded_800ExtraBold,
-} from '@expo-google-fonts/unbounded';
+import { useColorScheme } from 'nativewind';
+import { Unbounded_700Bold, Unbounded_800ExtraBold } from '@expo-google-fonts/unbounded';
 import {
   InstrumentSans_400Regular,
   InstrumentSans_500Medium,
   InstrumentSans_600SemiBold,
 } from '@expo-google-fonts/instrument-sans';
-import { C } from '../src/theme';
+import { usePalette } from '../src/theme';
 
 SplashScreen.preventAutoHideAsync();
 
 export default function RootLayout() {
+  const { colorScheme } = useColorScheme();
+  const C = usePalette();
+
   const [loaded, error] = useFonts({
     Unbounded_700Bold,
     Unbounded_800ExtraBold,
@@ -28,8 +29,8 @@ export default function RootLayout() {
   });
 
   useEffect(() => {
-    // Hide the native splash only once type is ready, so text never renders
-    // in a fallback face first and then jump when the real font lands.
+    // Hide the native splash only once type is ready, so nothing renders in a
+    // fallback face and then jumps when the real font lands.
     if (loaded || error) SplashScreen.hideAsync();
   }, [loaded, error]);
 
@@ -37,7 +38,7 @@ export default function RootLayout() {
 
   return (
     <>
-      <StatusBar style="light" />
+      <StatusBar style={colorScheme === 'light' ? 'dark' : 'light'} />
       <Stack
         screenOptions={{
           headerShown: false,

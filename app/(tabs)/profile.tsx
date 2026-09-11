@@ -1,5 +1,14 @@
 import { Linking, ScrollView, Text, View } from 'react-native';
-import { Body, Card, Divider, H1, Label, Screen } from '../../src/components/ui';
+import {
+  Body,
+  Card,
+  Divider,
+  H1,
+  Label,
+  Logo,
+  Screen,
+  ThemeToggle,
+} from '../../src/components/ui';
 import { stats, steps, user } from '../../src/mock/data';
 
 const ROWS: [string, string][] = [
@@ -13,8 +22,9 @@ export default function Profile() {
   return (
     <Screen>
       <ScrollView contentContainerClassName="px-5 pb-10" showsVerticalScrollIndicator={false}>
-        <View className="pt-6">
+        <View className="flex-row items-center justify-between pt-6">
           <H1>You</H1>
+          <ThemeToggle />
         </View>
 
         <Card className="mt-6">
@@ -50,8 +60,8 @@ export default function Profile() {
           <Card className="mt-3">
             <Text className="font-bodyMed text-[15px] text-ink">Health Connect</Text>
             <Body dim className="mt-1">
-              Demo build — steps are sample data. The real app reads your phone&apos;s health
-              store directly, with nothing to log by hand.
+              Demo build — steps are sample data. The real app reads your phone&apos;s health store
+              directly, with nothing to log by hand.
             </Body>
           </Card>
         </View>
@@ -64,15 +74,16 @@ export default function Profile() {
           difficulty: medium
         */}
 
-        <Text
-          onPress={() => Linking.openURL('https://github.com/fitnessorg')}
-          className="mt-9 font-bodyMed text-[14px] text-accent"
-        >
-          Open source on GitHub ↗
-        </Text>
-        <Body dim className="mt-2">
-          StepPal 1.0.0 · demo build · Apache-2.0
-        </Body>
+        <View className="mt-12 items-center gap-3 pb-4">
+          <Logo size={34} />
+          <Text
+            onPress={() => Linking.openURL('https://github.com/fitnessorg')}
+            className="font-bodyMed text-[14px] text-accent"
+          >
+            Open source on GitHub ↗
+          </Text>
+          <Body dim>StepPal 1.0.0 · demo build · Apache-2.0</Body>
+        </View>
       </ScrollView>
     </Screen>
   );

@@ -3,11 +3,11 @@ import { Animated, Easing, Image, View } from 'react-native';
 import { router } from 'expo-router';
 
 /**
- * Launch screen. The native splash (flame, logo) hands over to this, which
- * holds the mark for a beat and then settles into the app.
+ * Launch screen. The native splash (flame ground, white mark) hands over to
+ * this, which holds the mark for a beat and settles into the app.
  *
- * Deliberately short — long branded intros are charming once and irritating
- * every time after.
+ * Always flame regardless of theme — a brand moment shouldn't flip, and it
+ * makes the handover from the native splash seamless.
  */
 export default function Launch() {
   const fade = useRef(new Animated.Value(0)).current;
@@ -34,16 +34,16 @@ export default function Launch() {
   }, [fade, rise]);
 
   return (
-    <View className="flex-1 items-center justify-center bg-flame">
+    <View className="flex-1 items-center justify-center" style={{ backgroundColor: '#FF4A1C' }}>
       <Animated.View style={{ opacity: fade, transform: [{ translateY: rise }] }}>
         <Image
-          source={require('../assets/splash-icon.png')}
-          style={{ width: 200, height: 138, resizeMode: 'contain' }}
+          source={require('../assets/steppal-mark.png')}
+          style={{ width: 200, height: 138, resizeMode: 'contain', tintColor: '#FFFFFF' }}
         />
       </Animated.View>
       <Animated.Text
-        style={{ opacity: fade }}
-        className="mt-6 font-displayBlack text-2xl tracking-tight text-ink"
+        style={{ opacity: fade, color: '#FFFFFF', fontFamily: 'Unbounded_800ExtraBold' }}
+        className="mt-6 text-2xl tracking-tight"
       >
         STEPPAL
       </Animated.Text>
