@@ -1,7 +1,8 @@
 import { useState } from 'react';
 import { Alert, Pressable, ScrollView, Text, TextInput, View } from 'react-native';
 import { router } from 'expo-router';
-import { Body, Button, Card, H1, Label, Screen } from '../../src/components/ui';
+import { Ionicons } from '@expo/vector-icons';
+import { Body, Button, Card, Label, Screen, SectionHeader } from '../../src/components/ui';
 import { usePalette } from '../../src/theme';
 import type { PotMode } from '../../src/mock/data';
 
@@ -28,9 +29,9 @@ export default function CreatePot() {
   const [goal, setGoal] = useState('10000');
 
   // TODO(contributor): POST the pot to the API
-  // Currently this just confirms and navigates back. steppal-core exposes
-  // POST /v1/pots — creating should place the creator's stake hold in the same
-  // transaction as the membership row.
+  // Currently confirms and navigates back. steppal-core exposes POST /v1/pots —
+  // creating should place the creator's stake hold in the same transaction as
+  // the membership row.
   // difficulty: easy
   const create = () => {
     if (!name.trim()) return Alert.alert('Give it a name', 'Your friends need to recognise it.');
@@ -41,28 +42,33 @@ export default function CreatePot() {
 
   return (
     <Screen>
-      <ScrollView contentContainerClassName="px-5 pb-12" showsVerticalScrollIndicator={false}>
-        <Pressable onPress={() => router.back()} className="pt-4 active:opacity-60">
-          <Text className="font-bodyMed text-[14px] text-inkSoft">← Cancel</Text>
+      <View className="flex-row items-center px-5 pb-2 pt-2">
+        <Pressable
+          onPress={() => router.back()}
+          accessibilityLabel="Cancel"
+          className="h-10 w-10 items-center justify-center rounded-full active:opacity-60"
+        >
+          <Ionicons name="close" size={24} color={C.ink} />
         </Pressable>
+      </View>
 
-        <View className="mt-5">
-          <H1>Start a pot</H1>
-        </View>
+      <ScrollView contentContainerClassName="px-5 pb-10" showsVerticalScrollIndicator={false}>
+        <Text className="font-displayBlack text-[30px] leading-9 text-ink">Start a pot</Text>
+        <Body dim className="mt-2">
+          Runs for 7 days once everyone has joined. Nobody can join after it starts.
+        </Body>
 
-        <View className="mt-8 gap-2">
-          <Label>Name it</Label>
-          <TextInput
-            value={name}
-            onChangeText={setName}
-            placeholder="Lagos Walkers"
-            placeholderTextColor={C.inkFaint}
-            className="rounded-2xl bg-surface px-5 py-4 font-body text-[16px] text-ink"
-          />
-        </View>
+        <SectionHeader title="Name it" />
+        <TextInput
+          value={name}
+          onChangeText={setName}
+          placeholder="Lagos Walkers"
+          placeholderTextColor={C.inkFaint}
+          className="rounded-2xl bg-surface px-5 py-4 font-body text-[16px] text-ink"
+        />
 
-        <View className="mt-7 gap-3">
-          <Label>How it settles</Label>
+        <SectionHeader title="How it settles" />
+        <View className="gap-3">
           {MODES.map((m) => {
             const on = mode === m.key;
             return (
@@ -72,10 +78,10 @@ export default function CreatePot() {
                     <Text className={`font-bodyBold text-[15px] ${on ? 'text-accent' : 'text-ink'}`}>
                       {m.title}
                     </Text>
-                    <View
-                      className={`h-5 w-5 rounded-full border-2 ${
-                        on ? 'border-accent bg-accent' : 'border-surface2'
-                      }`}
+                    <Ionicons
+                      name={on ? 'radio-button-on' : 'radio-button-off'}
+                      size={20}
+                      color={on ? C.accent : C.inkFaint}
                     />
                   </View>
                   <Body dim className="mt-2">
@@ -87,7 +93,8 @@ export default function CreatePot() {
           })}
         </View>
 
-        <View className="mt-7 flex-row gap-3">
+        <SectionHeader title="The numbers" />
+        <View className="flex-row gap-3">
           <View className="flex-1 gap-2">
             <Label>Stake each (₦)</Label>
             <TextInput
@@ -108,12 +115,8 @@ export default function CreatePot() {
           </View>
         </View>
 
-        <Body dim className="mt-5">
-          Runs for 7 days from the moment everyone has joined. Nobody can join after it starts.
-        </Body>
-
-        <View className="mt-8">
-          <Button label="Create pot" onPress={create} />
+        <View className="mt-9">
+          <Button label="Create pot" icon="checkmark" onPress={create} />
         </View>
       </ScrollView>
     </Screen>

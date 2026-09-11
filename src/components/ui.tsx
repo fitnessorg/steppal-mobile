@@ -1,6 +1,8 @@
-import { Image, Pressable, Text, View, type ViewProps } from 'react-native';
+import { Image, Pressable, ScrollView, Text, View, type ViewProps } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useColorScheme } from 'nativewind';
+import { Ionicons } from '@expo/vector-icons';
+import { usePalette } from '../theme';
 
 /* ------------------------------------------------------------------ Screen */
 
@@ -15,11 +17,10 @@ export function Screen({ children }: { children: React.ReactNode }) {
 /* -------------------------------------------------------------------- Logo */
 
 /**
- * The mark is dark artwork on transparency, so it needs inverting on the dark
- * ground. `tintColor` recolours it wholesale, which is right for a small mark —
- * at this size it reads as an icon, not a product shot.
+ * Dark artwork on transparency, so it's tinted rather than shown raw — at this
+ * size it reads as an icon, not a product shot.
  */
-export function Logo({ size = 26 }: { size?: number }) {
+export function Logo({ size = 28 }: { size?: number }) {
   const { colorScheme } = useColorScheme();
   return (
     <Image
@@ -34,52 +35,117 @@ export function Logo({ size = 26 }: { size?: number }) {
   );
 }
 
-export function Wordmark({ size = 26 }: { size?: number }) {
+/* --------------------------------------------------------------- AppHeader */
+
+export type HeaderAction = {
+  icon: keyof typeof Ionicons.glyphMap;
+  onPress: () => void;
+  label: string;
+  dot?: boolean;
+};
+
+/**
+ * One header shape for every screen: identity or title on the left, icon
+ * actions on the right. Consistency here is most of what makes an app feel
+ * organised rather than assembled.
+ */
+export function AppHeader({
+  title,
+  logo,
+  actions = [],
+}: {
+  title?: string;
+  logo?: boolean;
+  actions?: HeaderAction[];
+}) {
+  const C = usePalette();
   return (
-    <View className="flex-row items-center gap-2">
-      <Logo size={size} />
-      <Text className="font-displayBlack text-[15px] tracking-tight text-ink">StepPal</Text>
+    <View className="flex-row items-center justify-between px-5 pb-3 pt-2">
+      {logo ? <Logo /> : <Text className="font-displayBlack text-[26px] text-ink">{title}</Text>}
+
+      <View className="flex-row items-center gap-1">
+        {actions.map((a) => (
+          <Pressable
+            key={a.label}
+            onPress={a.onPress}
+            accessibilityRole="button"
+            accessibilityLabel={a.label}
+            className="relative h-10 w-10 items-center justify-center rounded-full active:opacity-60"
+          >
+            <Ionicons name={a.icon} size={22} color={C.ink} />
+            {a.dot ? (
+              <View className="absolute right-2 top-2 h-2 w-2 rounded-full bg-flame" />
+            ) : null}
+          </Pressable>
+        ))}
+      </View>
     </View>
   );
 }
 
-/* ------------------------------------------------------------- ThemeToggle */
+/* ----------------------------------------------------------- SectionHeader */
 
-/**
- * Three states, matching how the OS works: explicit light, explicit dark, or
- * follow the system. A two-way switch strands anyone who wants to go back to
- * following their phone.
- *
- * TODO(contributor): persist the choice
- * The selection resets on app restart. Store it (expo-secure-store is already
- * a dependency, or add async-storage) and apply it before first paint.
- * difficulty: easy
- */
-export function ThemeToggle() {
-  const { colorScheme, setColorScheme } = useColorScheme();
-  const next = { light: 'dark', dark: 'system', system: 'light' } as const;
-  const label = { light: 'Light', dark: 'Dark', system: 'Auto' } as const;
-  const current = (colorScheme ?? 'system') as keyof typeof next;
-
+export function SectionHeader({
+  title,
+  action,
+  onAction,
+}: {
+  title: string;
+  action?: string;
+  onAction?: () => void;
+}) {
   return (
-    <Pressable
-      accessibilityRole="button"
-      accessibilityLabel={`Theme: ${label[current]}. Tap to change.`}
-      onPress={() => setColorScheme(next[current])}
-      className="rounded-full border border-surface2 px-3 py-1.5 active:opacity-70"
+    <View className="mb-3 mt-8 flex-row items-center justify-between">
+      <Text className="font-display text-[17px] text-ink">{title}</Text>
+      {action ? (
+        <Pressable onPress={onAction} className="active:opacity-60">
+          <Text className="font-bodyBold text-[13px] text-accent">{action}</Text>
+        </Pressable>
+      ) : null}
+    </View>
+  );
+}
+
+/* ------------------------------------------------------------------- Chips */
+
+export function Chips<T extends string>({
+  options,
+  value,
+  onChange,
+}: {
+  options: readonly T[];
+  value: T;
+  onChange: (v: T) => void;
+}) {
+  return (
+    <ScrollView
+      horizontal
+      showsHorizontalScrollIndicator={false}
+      contentContainerClassName="gap-2 px-5"
     >
-      <Text className="font-bodyMed text-[11px] uppercase tracking-[1.5px] text-inkSoft">
-        {label[current]}
-      </Text>
-    </Pressable>
+      {options.map((o) => {
+        const on = o === value;
+        return (
+          <Pressable
+            key={o}
+            onPress={() => onChange(o)}
+            className={`rounded-full border px-4 py-2 active:opacity-70 ${
+              on ? 'border-accent bg-accent' : 'border-surface2 bg-transparent'
+            }`}
+          >
+            <Text
+              className={`font-bodyMed text-[13px] ${on ? 'text-accentInk' : 'text-inkSoft'}`}
+            >
+              {o}
+            </Text>
+          </Pressable>
+        );
+      })}
+    </ScrollView>
   );
 }
 
 /* -------------------------------------------------------------------- Text */
-
-export function H1({ children }: { children: React.ReactNode }) {
-  return <Text className="font-displayBlack text-3xl leading-tight text-ink">{children}</Text>;
-}
 
 export function Label({
   children,
@@ -129,29 +195,27 @@ export function Button({
   label,
   onPress,
   tone = 'accent',
-  disabled,
+  icon,
 }: {
   label: string;
   onPress?: () => void;
-  tone?: 'accent' | 'flame' | 'ghost';
-  disabled?: boolean;
+  tone?: 'accent' | 'ghost';
+  icon?: keyof typeof Ionicons.glyphMap;
 }) {
-  const bg =
-    tone === 'accent'
-      ? 'bg-accent'
-      : tone === 'flame'
-        ? 'bg-flame'
-        : 'border border-surface2 bg-transparent';
-  const fg = tone === 'ghost' ? 'text-ink' : tone === 'flame' ? 'text-white' : 'text-accentInk';
-
+  const C = usePalette();
+  const ghost = tone === 'ghost';
   return (
     <Pressable
       onPress={onPress}
-      disabled={disabled}
       accessibilityRole="button"
-      className={`${bg} items-center rounded-full px-6 py-4 ${disabled ? 'opacity-40' : 'active:opacity-80'}`}
+      className={`flex-row items-center justify-center gap-2 rounded-full px-6 py-4 active:opacity-80 ${
+        ghost ? 'border border-surface2' : 'bg-accent'
+      }`}
     >
-      <Text className={`font-bodyBold text-[15px] ${fg}`}>{label}</Text>
+      {icon ? <Ionicons name={icon} size={17} color={ghost ? C.ink : C.accentInk} /> : null}
+      <Text className={`font-bodyBold text-[15px] ${ghost ? 'text-ink' : 'text-accentInk'}`}>
+        {label}
+      </Text>
     </Pressable>
   );
 }
@@ -169,7 +233,6 @@ export function ProgressBar({ value }: { value: number }) {
 
 /* ----------------------------------------------------------------- DayGrid */
 
-/** Seven squares, filled where the goal was met. The clearest read on a week. */
 export function DayGrid({ days }: { days: { day: string; goalMet: boolean }[] }) {
   return (
     <View className="flex-row justify-between">
@@ -187,4 +250,23 @@ export function DayGrid({ days }: { days: { day: string; goalMet: boolean }[] })
 
 export function Divider() {
   return <View className="h-px w-full bg-surface2" />;
+}
+
+/* ------------------------------------------------------------ ThemeToggle */
+
+/**
+ * Three states, matching how the OS works. A two-way switch strands anyone who
+ * wants to go back to following their phone.
+ *
+ * TODO(contributor): persist the choice
+ * Resets on restart. Store it and apply before first paint.
+ * difficulty: easy
+ */
+export function useThemeCycle() {
+  const { colorScheme, setColorScheme } = useColorScheme();
+  const next = { light: 'dark', dark: 'system', system: 'light' } as const;
+  const current = (colorScheme ?? 'system') as keyof typeof next;
+  const icon: keyof typeof Ionicons.glyphMap =
+    current === 'light' ? 'sunny-outline' : current === 'dark' ? 'moon-outline' : 'contrast-outline';
+  return { icon, cycle: () => setColorScheme(next[current]) };
 }

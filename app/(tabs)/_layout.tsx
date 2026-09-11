@@ -1,14 +1,23 @@
 import { View } from 'react-native';
 import { Tabs } from 'expo-router';
+import { Ionicons } from '@expo/vector-icons';
 import { F, usePalette } from '../../src/theme';
 
 /**
- * Labels go in `tabBarLabel`, not `tabBarIcon`. The icon slot is narrow, so
- * putting text there wraps "Wallet" onto two lines — which is exactly what it
- * did before this fix.
+ * Icon in a pill for the active tab, label underneath — the pattern Strava
+ * and most mature consumer apps use, because the pill gives the active state
+ * a shape rather than only a colour.
  *
- * The icon slot now holds only a 3px accent dash marking the active tab.
+ * Labels live in `tabBarLabel`, never in the icon slot: that slot is narrow
+ * and wraps longer words like "Wallet" onto two lines.
  */
+const TABS = [
+  { name: 'home', title: 'Today', icon: 'footsteps' },
+  { name: 'pots', title: 'Pots', icon: 'trophy' },
+  { name: 'wallet', title: 'Wallet', icon: 'wallet' },
+  { name: 'profile', title: 'You', icon: 'person' },
+] as const;
+
 export default function TabsLayout() {
   const C = usePalette();
 
@@ -21,44 +30,42 @@ export default function TabsLayout() {
         tabBarInactiveTintColor: C.inkFaint,
         tabBarLabelStyle: {
           fontFamily: F.bodyMed,
-          fontSize: 11.5,
+          fontSize: 11,
           marginTop: 4,
           includeFontPadding: false,
         },
-        tabBarIconStyle: { height: 3, marginTop: 2 },
         tabBarItemStyle: { paddingVertical: 0 },
         tabBarStyle: {
           backgroundColor: C.surface,
           borderTopColor: C.surface2,
           borderTopWidth: 1,
-          height: 76,
-          paddingTop: 12,
-          paddingBottom: 18,
+          height: 84,
+          paddingTop: 10,
+          paddingBottom: 22,
         },
       }}
     >
-      {(
-        [
-          ['home', 'Today'],
-          ['pots', 'Pots'],
-          ['wallet', 'Wallet'],
-          ['profile', 'You'],
-        ] as const
-      ).map(([name, title]) => (
+      {TABS.map((t) => (
         <Tabs.Screen
-          key={name}
-          name={name}
+          key={t.name}
+          name={t.name}
           options={{
-            title,
+            title: t.title,
             tabBarIcon: ({ focused }) => (
               <View
                 style={{
-                  height: 3,
-                  width: 20,
-                  borderRadius: 2,
-                  backgroundColor: focused ? C.accent : 'transparent',
+                  paddingHorizontal: 18,
+                  paddingVertical: 5,
+                  borderRadius: 999,
+                  backgroundColor: focused ? C.surface2 : 'transparent',
                 }}
-              />
+              >
+                <Ionicons
+                  name={focused ? t.icon : (`${t.icon}-outline` as never)}
+                  size={20}
+                  color={focused ? C.accent : C.inkFaint}
+                />
+              </View>
             ),
           }}
         />
