@@ -1,13 +1,14 @@
 import { useEffect, useRef } from 'react';
 import { Animated, Easing, Image, View } from 'react-native';
 import { router } from 'expo-router';
+import { hasSeenOnboarding } from '../src/session';
 
 /**
  * Launch screen. The native splash (flame ground, white mark) hands over to
- * this, which holds the mark for a beat and settles into the app.
+ * this, which holds the mark for a beat then routes on.
  *
- * Always flame regardless of theme — a brand moment shouldn't flip, and it
- * makes the handover from the native splash seamless.
+ * Always flame regardless of theme — a brand moment shouldn't flip with the
+ * OS, and it makes the handover from the native splash seamless.
  */
 export default function Launch() {
   const fade = useRef(new Animated.Value(0)).current;
@@ -29,7 +30,10 @@ export default function Launch() {
       }),
     ]).start();
 
-    const t = setTimeout(() => router.replace('/(tabs)/home'), 1400);
+    const t = setTimeout(
+      () => router.replace(hasSeenOnboarding() ? '/(tabs)/home' : '/onboarding'),
+      1400,
+    );
     return () => clearTimeout(t);
   }, [fade, rise]);
 

@@ -2,15 +2,7 @@ import { useState } from 'react';
 import { Pressable, ScrollView, Text, View } from 'react-native';
 import { router } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
-import {
-  AppHeader,
-  Body,
-  Card,
-  Chips,
-  Label,
-  Screen,
-  SectionHeader,
-} from '../../src/components/ui';
+import { AppHeader, Body, Card, Chips, Label, Screen, SectionHeader } from '../../src/components/ui';
 import { usePalette } from '../../src/theme';
 import { modeLabel, naira, pots, type Pot } from '../../src/mock/data';
 
@@ -28,9 +20,7 @@ function PotRow({ pot }: { pot: Pot }) {
           <Label tone={settled ? undefined : 'flame'}>
             {settled ? 'Settled' : `Day ${pot.dayOf} of ${pot.totalDays}`}
           </Label>
-          <Text
-            className={`font-bodyBold text-[13px] ${settled ? 'text-accent' : 'text-money'}`}
-          >
+          <Text className={`font-bodyBold text-[13px] ${settled ? 'text-accent' : 'text-money'}`}>
             {settled ? `+${naira(pot.payoutKobo ?? 0)}` : naira(pot.potKobo)}
           </Text>
         </View>
@@ -50,6 +40,7 @@ function PotRow({ pot }: { pot: Pot }) {
 }
 
 export default function Pots() {
+  const C = usePalette();
   const [filter, setFilter] = useState<Filter>('All');
 
   const running = pots.filter((p) => p.status === 'active');
@@ -88,15 +79,27 @@ export default function Pots() {
         ) : null}
 
         <SectionHeader title="Start something" />
-        <Pressable onPress={() => router.push('/pot/create')} className="active:opacity-80">
-          <Card className="items-center gap-2 py-8">
-            <Ionicons name="add-circle-outline" size={30} color="#D6F035" />
-            <Text className="font-display text-[15px] text-ink">Start a pot</Text>
-            <Body dim className="text-center">
-              Pick a stake, invite your friends, walk for a week.
-            </Body>
-          </Card>
-        </Pressable>
+        <View className="flex-row gap-3">
+          <Pressable onPress={() => router.push('/pot/create')} className="flex-1 active:opacity-80">
+            <Card className="items-center gap-2 py-7">
+              <Ionicons name="add-circle-outline" size={28} color={C.accent} />
+              <Text className="font-bodyBold text-[14px] text-ink">Start a pot</Text>
+              <Body dim className="text-center">
+                Set a stake, invite friends
+              </Body>
+            </Card>
+          </Pressable>
+
+          <Pressable onPress={() => router.push('/pot/join')} className="flex-1 active:opacity-80">
+            <Card className="items-center gap-2 py-7">
+              <Ionicons name="ticket-outline" size={28} color={C.flame} />
+              <Text className="font-bodyBold text-[14px] text-ink">Join with code</Text>
+              <Body dim className="text-center">
+                Someone sent you one
+              </Body>
+            </Card>
+          </Pressable>
+        </View>
       </ScrollView>
     </Screen>
   );

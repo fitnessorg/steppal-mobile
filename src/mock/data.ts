@@ -6,8 +6,8 @@
  * doesn't touch the UI.
  *
  * TODO(contributor): replace with @steppal/sdk calls
- * Each export below maps to an endpoint in steppal-core. Keep the shapes
- * identical so screens don't change. Start with todaySteps and activePot.
+ * Each export maps to an endpoint in steppal-core. Keep the shapes identical so
+ * screens don't change. Start with todaySteps and activePot.
  * difficulty: medium
  */
 
@@ -21,7 +21,7 @@ export const user = {
   joined: 'Aug 2026',
 };
 
-/** Today, and the six days before it. Index 6 is today. */
+/** Index 6 is today. */
 export const week = [
   { day: 'Thu', steps: 9_210, goalMet: true },
   { day: 'Fri', steps: 11_340, goalMet: true },
@@ -43,6 +43,15 @@ export type Member = {
   isYou?: boolean;
 };
 
+export type ChatMessage = {
+  id: string;
+  name: string;
+  body: string;
+  time: string;
+  kind: 'text' | 'system';
+  isYou?: boolean;
+};
+
 export type Pot = {
   id: string;
   name: string;
@@ -54,7 +63,7 @@ export type Pot = {
   totalDays: number;
   inviteCode: string;
   members: Member[];
-  /** Only on settled pots. */
+  chat: ChatMessage[];
   payoutKobo?: number;
 };
 
@@ -77,6 +86,15 @@ export const pots: Pot[] = [
       { id: '5', name: 'Ife', steps: 39_560, daysMet: 2 },
       { id: '6', name: 'Kemi', steps: 31_200, daysMet: 1 },
     ],
+    chat: [
+      { id: 'c1', name: '', body: 'Kemi missed her goal — ₦1,000 to the pot', time: 'Mon', kind: 'system' },
+      { id: 'c2', name: 'Tunde', body: 'Pot is at ₦9,000 now. Keep missing, Kemi 😭', time: 'Mon', kind: 'text' },
+      { id: 'c3', name: 'Kemi', body: 'Traffic on third mainland. Not my fault', time: 'Mon', kind: 'text' },
+      { id: 'c4', name: 'Ada', body: 'Excuses. I walked from Yaba to Surulere', time: 'Tue', kind: 'text' },
+      { id: 'c5', name: '', body: 'Tunde hit 5 of 5 days', time: 'Tue', kind: 'system' },
+      { id: 'c6', name: 'You', body: "2,300 behind Tunde. Catching him tonight", time: 'Wed', kind: 'text', isYou: true },
+      { id: 'c7', name: 'Chidi', body: 'Nobody is catching Tunde 😂', time: 'Wed', kind: 'text' },
+    ],
   },
   {
     id: 'office-sprint',
@@ -95,10 +113,27 @@ export const pots: Pot[] = [
       { id: '8', name: 'Femi', steps: 66_890, daysMet: 5 },
       { id: '9', name: 'Nneka', steps: 60_110, daysMet: 5 },
     ],
+    chat: [
+      { id: 'd1', name: '', body: 'Week closed. Settling…', time: 'Sun', kind: 'system' },
+      { id: 'd2', name: '', body: 'You won ₦12,000', time: 'Sun', kind: 'system' },
+      { id: 'd3', name: 'Bisi', body: 'Rematch. Same stake', time: 'Sun', kind: 'text' },
+    ],
   },
 ];
 
 export const activePot = pots.find((p) => p.status === 'active')!;
+export const settledPot = pots.find((p) => p.status === 'settled')!;
+
+/** Pot preview returned when someone enters an invite code. */
+export const joinablePot = {
+  code: 'RUN-2290',
+  name: 'Ikeja Early Birds',
+  mode: 'forfeit' as PotMode,
+  stakeKobo: 300_000,
+  members: 4,
+  startsIn: 'Starts tomorrow',
+  host: 'Bisi',
+};
 
 export type LedgerEntry = {
   id: string;
