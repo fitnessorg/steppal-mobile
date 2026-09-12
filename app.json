@@ -6,18 +6,14 @@
     "scheme": "steppal",
     "orientation": "portrait",
     "icon": "./assets/icon.png",
-    "userInterfaceStyle": "dark",
+    "userInterfaceStyle": "automatic",
     "backgroundColor": "#0C0A08",
-    "splash": {
-      "image": "./assets/splash-icon.png",
-      "resizeMode": "contain",
-      "backgroundColor": "#FF4A1C"
-    },
     "ios": {
       "supportsTablet": true
     },
     "android": {
       "package": "app.steppal.mobile",
+      "permissions": ["android.permission.health.READ_STEPS"],
       "adaptiveIcon": {
         "backgroundColor": "#FF4A1C",
         "foregroundImage": "./assets/android-icon-foreground.png",
@@ -33,6 +29,7 @@
       "expo-router",
       "expo-status-bar",
       "expo-font",
+      "react-native-health-connect",
       [
         "expo-splash-screen",
         {
