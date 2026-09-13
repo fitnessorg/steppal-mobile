@@ -15,7 +15,8 @@ import {
 } from '../../src/components/ui';
 import { usePalette } from '../../src/theme';
 import { getStepSource, type DailySteps } from '../../src/health';
-import { activePot, naira, steps, user, week } from '../../src/mock/data';
+import { naira, steps, user, week } from '../../src/mock/data';
+import { useActivePot } from '../../src/store/pots';
 
 const source = getStepSource();
 
@@ -67,9 +68,10 @@ export default function Home() {
     : week;
   const daysHit = grid.filter((d) => d.goalMet).length;
 
-  const me = activePot.members.find((m) => m.isYou)!;
-  const rank = activePot.members.findIndex((m) => m.isYou) + 1;
-  const ahead = activePot.members[rank - 2];
+  const activePot = useActivePot();
+  const me = activePot?.members.find((m) => m.isYou);
+  const rank = activePot ? activePot.members.findIndex((m) => m.isYou) + 1 : 0;
+  const ahead = activePot?.members[rank - 2];
 
   return (
     <Screen>
@@ -108,33 +110,50 @@ export default function Home() {
 
         <SectionHeader
           title="Your pot"
-          action="See all"
+          action={activePot ? 'See all' : undefined}
           onAction={() => router.push('/(tabs)/pots')}
         />
-        <Pressable onPress={() => router.push(`/pot/${activePot.id}`)} className="active:opacity-80">
-          <Card>
-            <View className="flex-row items-center justify-between">
-              <Label tone="flame">
-                Day {activePot.dayOf} of {activePot.totalDays}
-              </Label>
-              <Text className="font-bodyMed text-[12px] text-money">
-                {naira(activePot.potKobo)} pot
-              </Text>
-            </View>
+        {activePot ? (
+          <Pressable
+            onPress={() => router.push(`/pot/${activePot.id}`)}
+            className="active:opacity-80"
+          >
+            <Card>
+              <View className="flex-row items-center justify-between">
+                <Label tone="flame">
+                  Day {activePot.dayOf} of {activePot.totalDays}
+                </Label>
+                <Text className="font-bodyMed text-[12px] text-money">
+                  {naira(activePot.potKobo)} pot
+                </Text>
+              </View>
 
-            <Text className="mt-3 font-display text-lg text-ink">{activePot.name}</Text>
-            <Body dim className="mt-1">
-              {ahead
-                ? `You're ${rank === 2 ? '2nd' : `${rank}th`} — ${steps(ahead.steps - me.steps)} behind ${ahead.name}.`
-                : `You're leading by ${steps(me.steps - activePot.members[1].steps)}.`}
-            </Body>
+              <Text className="mt-3 font-display text-lg text-ink">{activePot.name}</Text>
+              <Body dim className="mt-1">
+                {ahead && me
+                  ? `You're ${rank === 2 ? '2nd' : `${rank}th`} — ${steps(ahead.steps - me.steps)} behind ${ahead.name}.`
+                  : activePot.members.length === 1
+                    ? `Nobody has joined yet. Share ${activePot.inviteCode}.`
+                    : `You're leading.`}
+              </Body>
 
-            <View className="mt-4 flex-row items-center gap-1.5">
-              <Text className="font-bodyBold text-[13px] text-accent">See the leaderboard</Text>
-              <Ionicons name="chevron-forward" size={14} color={C.accent} />
-            </View>
-          </Card>
-        </Pressable>
+              <View className="mt-4 flex-row items-center gap-1.5">
+                <Text className="font-bodyBold text-[13px] text-accent">See the leaderboard</Text>
+                <Ionicons name="chevron-forward" size={14} color={C.accent} />
+              </View>
+            </Card>
+          </Pressable>
+        ) : (
+          <Pressable onPress={() => router.push('/pot/create')} className="active:opacity-80">
+            <Card className="items-center gap-2 py-8">
+              <Ionicons name="add-circle-outline" size={30} color={C.accent} />
+              <Text className="font-bodyBold text-[15px] text-ink">Start your first pot</Text>
+              <Body dim className="text-center">
+                Walking is more fun when there is money on it.
+              </Body>
+            </Card>
+          </Pressable>
+        )}
 
         <SectionHeader title="This week" />
         <Card>

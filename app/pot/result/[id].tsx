@@ -4,7 +4,8 @@ import { router, useLocalSearchParams } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
 import { Body, Button, Card, Divider, Label, Screen, SectionHeader } from '../../../src/components/ui';
 import { usePalette } from '../../../src/theme';
-import { naira, pots, steps } from '../../../src/mock/data';
+import { naira, steps } from '../../../src/mock/data';
+import { usePots } from '../../../src/store/pots';
 
 /**
  * The money moment. Shown when a pot settles.
@@ -15,7 +16,8 @@ import { naira, pots, steps } from '../../../src/mock/data';
 export default function PotResult() {
   const C = usePalette();
   const { id } = useLocalSearchParams<{ id: string }>();
-  const pot = pots.find((p) => p.id === id) ?? pots[1];
+  const pots = usePots();
+  const pot = pots.find((p) => p.id === id) ?? pots.find((p) => p.status === 'settled')!;
   const payout = pot.payoutKobo ?? 0;
 
   const count = useRef(new Animated.Value(0)).current;

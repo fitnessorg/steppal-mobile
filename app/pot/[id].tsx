@@ -1,11 +1,21 @@
-import { useState } from 'react';
-import { KeyboardAvoidingView, Platform, Pressable, ScrollView, Share, Text, TextInput, View } from 'react-native';
+import { useEffect, useState } from 'react';
+import {
+  KeyboardAvoidingView,
+  Platform,
+  Pressable,
+  ScrollView,
+  Share,
+  Text,
+  TextInput,
+  View,
+} from 'react-native';
 import { router, useLocalSearchParams } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
 import { Body, Card, Divider, Label, Screen, SectionHeader } from '../../src/components/ui';
 import { Segmented } from '../../src/components/segmented';
 import { usePalette } from '../../src/theme';
-import { modeLabel, naira, pots, steps, type ChatMessage } from '../../src/mock/data';
+import { sendMessage, usePot } from '../../src/store/pots';
+import { modeLabel, naira, steps, type ChatMessage } from '../../src/mock/data';
 
 const TABS = ['Leaderboard', 'Chat'] as const;
 type Tab = (typeof TABS)[number];
@@ -14,7 +24,7 @@ function Bubble({ m }: { m: ChatMessage }) {
   if (m.kind === 'system') {
     return (
       <View className="my-2 items-center">
-        <Text className="rounded-full bg-surface2 px-3 py-1.5 font-body text-[12px] text-inkFaint">
+        <Text className="rounded-full bg-surface2 px-3 py-1.5 text-center font-body text-[12px] text-inkFaint">
           {m.body}
         </Text>
       </View>
@@ -22,7 +32,9 @@ function Bubble({ m }: { m: ChatMessage }) {
   }
   return (
     <View className={`mb-3 max-w-[80%] ${m.isYou ? 'self-end' : 'self-start'}`}>
-      {!m.isYou ? <Text className="mb-1 font-bodyMed text-[12px] text-inkFaint">{m.name}</Text> : null}
+      {!m.isYou ? (
+        <Text className="mb-1 font-bodyMed text-[12px] text-inkFaint">{m.name}</Text>
+      ) : null}
       <View className={`rounded-2xl px-4 py-3 ${m.isYou ? 'bg-accent' : 'bg-surface'}`}>
         <Text className={`font-body text-[15px] ${m.isYou ? 'text-accentInk' : 'text-ink'}`}>
           {m.body}
@@ -34,69 +46,79 @@ function Bubble({ m }: { m: ChatMessage }) {
 
 export default function PotDetail() {
   const C = usePalette();
-  const { id } = useLocalSearchParams<{ id: string }>();
-  const pot = pots.find((p) => p.id === id) ?? pots[0];
-  const settled = pot.status === 'settled';
+  const { id, created } = useLocalSearchParams<{ id: string; created?: string }>();
+  const pot = usePot(id);
 
   const [tab, setTab] = useState<Tab>('Leaderboard');
   const [draft, setDraft] = useState('');
-  const [chat, setChat] = useState(pot.chat);
 
-  const ranked = [...pot.members].sort((a, b) =>
-    pot.mode === 'forfeit' ? b.daysMet - a.daysMet || b.steps - a.steps : b.steps - a.steps,
-  );
-
-  const share = () =>
+  const share = () => {
+    if (!pot) return;
     Share.share({
       message: `Join my StepPal pot "${pot.name}" — code ${pot.inviteCode}. ${naira(
         pot.stakeKobo,
-      )} each, 7 days, most consistent wins.`,
+      )} each, ${pot.totalDays} days, most consistent wins.`,
     });
-
-  // TODO(contributor): real group chat
-  // Messages are local state and vanish on reload. steppal-core needs a
-  // messages table plus a Supabase-style realtime subscription; system messages
-  // (goal met, forfeit, settlement) should be emitted by the server, not typed.
-  // difficulty: hard
-  const send = () => {
-    const body = draft.trim();
-    if (!body) return;
-    setChat([
-      ...chat,
-      { id: `local-${Date.now()}`, name: 'You', body, time: 'now', kind: 'text', isYou: true },
-    ]);
-    setDraft('');
   };
+
+  // Straight after creating, the only useful next action is inviting people.
+  useEffect(() => {
+    if (created === '1' && pot) {
+      const t = setTimeout(share, 400);
+      return () => clearTimeout(t);
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [created, pot?.id]);
+
+  if (!pot) {
+    return (
+      <Screen>
+        <View className="flex-1 items-center justify-center gap-3 px-8">
+          <Ionicons name="help-circle-outline" size={34} color={C.inkFaint} />
+          <Body dim className="text-center">
+            That pot no longer exists.
+          </Body>
+          <Pressable onPress={() => router.replace('/(tabs)/pots')} className="active:opacity-70">
+            <Text className="font-bodyBold text-[14px] text-accent">Back to pots</Text>
+          </Pressable>
+        </View>
+      </Screen>
+    );
+  }
+
+  const settled = pot.status === 'settled';
+  const alone = pot.members.length === 1;
+  const ranked = [...pot.members].sort((a, b) =>
+    pot.mode === 'forfeit' ? b.daysMet - a.daysMet || b.steps - a.steps : b.steps - a.steps,
+  );
 
   return (
     <Screen>
       <View className="flex-row items-center justify-between px-5 pb-2 pt-2">
         <Pressable
-          onPress={() => router.back()}
+          onPress={() => (router.canGoBack() ? router.back() : router.replace('/(tabs)/pots'))}
           accessibilityLabel="Back"
           className="h-10 w-10 items-center justify-center rounded-full active:opacity-60"
         >
           <Ionicons name="chevron-back" size={24} color={C.ink} />
         </Pressable>
-        <View className="flex-row">
-          {settled ? (
-            <Pressable
-              onPress={() => router.push(`/pot/result/${pot.id}`)}
-              accessibilityLabel="See result"
-              className="h-10 w-10 items-center justify-center rounded-full active:opacity-60"
-            >
-              <Ionicons name="trophy-outline" size={21} color={C.ink} />
-            </Pressable>
-          ) : (
-            <Pressable
-              onPress={share}
-              accessibilityLabel="Share invite"
-              className="h-10 w-10 items-center justify-center rounded-full active:opacity-60"
-            >
-              <Ionicons name="share-outline" size={21} color={C.ink} />
-            </Pressable>
-          )}
-        </View>
+        {settled ? (
+          <Pressable
+            onPress={() => router.push(`/pot/result/${pot.id}`)}
+            accessibilityLabel="See result"
+            className="h-10 w-10 items-center justify-center rounded-full active:opacity-60"
+          >
+            <Ionicons name="trophy-outline" size={21} color={C.ink} />
+          </Pressable>
+        ) : (
+          <Pressable
+            onPress={share}
+            accessibilityLabel="Share invite"
+            className="h-10 w-10 items-center justify-center rounded-full active:opacity-60"
+          >
+            <Ionicons name="share-outline" size={21} color={C.ink} />
+          </Pressable>
+        )}
       </View>
 
       <View className="px-5">
@@ -105,7 +127,8 @@ export default function PotDetail() {
         </Label>
         <Text className="mt-2 font-displayBlack text-[28px] leading-8 text-ink">{pot.name}</Text>
         <Body dim className="mt-1.5">
-          {modeLabel[pot.mode]} · {naira(pot.stakeKobo)} each · {pot.members.length} people
+          {modeLabel[pot.mode]} · {naira(pot.stakeKobo)} each · {pot.members.length}{' '}
+          {pot.members.length === 1 ? 'person' : 'people'}
         </Body>
 
         <View className="mt-5">
@@ -115,7 +138,26 @@ export default function PotDetail() {
 
       {tab === 'Leaderboard' ? (
         <ScrollView contentContainerClassName="px-5 pb-8" showsVerticalScrollIndicator={false}>
-          <Card className="mt-5">
+          {/* Fresh pot: the invite code is the whole job, so it goes first. */}
+          {alone && !settled ? (
+            <Pressable onPress={share} className="mt-5 active:opacity-80">
+              <Card className="border border-accent">
+                <Label tone="accent">Pot created · invite code</Label>
+                <Text className="mt-2 font-displayBlack text-[32px] tracking-widest text-ink">
+                  {pot.inviteCode}
+                </Text>
+                <Body dim className="mt-2">
+                  Send this to your friends. They enter it under Pots, Join with code.
+                </Body>
+                <View className="mt-4 flex-row items-center gap-1.5">
+                  <Ionicons name="share-outline" size={16} color={C.accent} />
+                  <Text className="font-bodyBold text-[13px] text-accent">Share the code</Text>
+                </View>
+              </Card>
+            </Pressable>
+          ) : null}
+
+          <Card className="mt-3">
             {settled ? (
               <>
                 <Label tone="accent">You won</Label>
@@ -138,7 +180,9 @@ export default function PotDetail() {
                 </Text>
                 <View className="mt-3 flex-row items-center gap-2">
                   <Ionicons name="lock-closed" size={13} color={C.inkFaint} />
-                  <Body dim>Held by the contract until the week closes</Body>
+                  <Body dim>
+                    {alone ? 'Grows as people join' : 'Held by the contract until the week closes'}
+                  </Body>
                 </View>
               </>
             )}
@@ -169,7 +213,7 @@ export default function PotDetail() {
             ))}
           </Card>
 
-          {!settled ? (
+          {!settled && !alone ? (
             <>
               <SectionHeader title="Bring someone in" />
               <Pressable onPress={share} className="active:opacity-80">
@@ -196,23 +240,36 @@ export default function PotDetail() {
             contentContainerClassName="px-5 pt-5 pb-4"
             showsVerticalScrollIndicator={false}
           >
-            {chat.map((m) => (
-              <Bubble key={m.id} m={m} />
-            ))}
+            {pot.chat.length === 0 ? (
+              <View className="mt-10 items-center gap-3">
+                <Ionicons name="chatbubbles-outline" size={30} color={C.inkFaint} />
+                <Body dim className="text-center">
+                  Nothing said yet. Start the trash talk.
+                </Body>
+              </View>
+            ) : (
+              pot.chat.map((m) => <Bubble key={m.id} m={m} />)
+            )}
           </ScrollView>
 
           <View className="flex-row items-center gap-2 border-t border-surface2 px-5 py-3">
             <TextInput
               value={draft}
               onChangeText={setDraft}
-              onSubmitEditing={send}
+              onSubmitEditing={() => {
+                sendMessage(pot.id, draft);
+                setDraft('');
+              }}
               placeholder="Say something"
               placeholderTextColor={C.inkFaint}
               returnKeyType="send"
               className="flex-1 rounded-full bg-surface px-5 py-3 font-body text-[15px] text-ink"
             />
             <Pressable
-              onPress={send}
+              onPress={() => {
+                sendMessage(pot.id, draft);
+                setDraft('');
+              }}
               accessibilityLabel="Send"
               className="h-11 w-11 items-center justify-center rounded-full bg-accent active:opacity-80"
             >

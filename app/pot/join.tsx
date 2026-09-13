@@ -4,36 +4,32 @@ import { router } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
 import { Body, Button, Card, Label, Screen, SectionHeader } from '../../src/components/ui';
 import { usePalette } from '../../src/theme';
-import { joinablePot, modeLabel, naira } from '../../src/mock/data';
+import { findByCode, joinByCode } from '../../src/store/pots';
+import { modeLabel, naira, type Pot } from '../../src/mock/data';
 
 /**
- * Closes the invite loop: someone shares a code in WhatsApp, you paste it here
- * and see what you're joining before any money moves.
- *
- * TODO(contributor): look the code up for real
- * Currently any code resolves to one mock pot. steppal-core exposes
- * GET /v1/pots/invite/:code — public and unauthenticated, so the preview works
- * before sign-in. Handle a bad code and an already-started pot.
- * difficulty: easy
+ * Closes the invite loop: someone shares a code, you paste it, you see exactly
+ * what you are joining before any money moves.
  */
 export default function JoinPot() {
   const C = usePalette();
   const [code, setCode] = useState('');
-  const [found, setFound] = useState(false);
+  const [found, setFound] = useState<Pot | null>(null);
 
   const look = () => {
-    if (code.trim().length < 4) {
-      return Alert.alert('Check the code', 'Invite codes look like WALK-4821.');
+    const hit = findByCode(code);
+    if (!hit) {
+      return Alert.alert('No pot with that code', 'Check it with whoever sent it.');
     }
-    setFound(true);
+    setFound(hit);
   };
 
-  const join = () =>
-    Alert.alert(
-      'Demo build',
-      `You would join ${joinablePot.name} and ${naira(joinablePot.stakeKobo)} would be held.`,
-      [{ text: 'OK', onPress: () => router.replace('/(tabs)/pots') }],
-    );
+  const join = () => {
+    if (!found) return;
+    const pot = joinByCode(found.inviteCode);
+    if (!pot) return;
+    router.replace(`/pot/${pot.id}`);
+  };
 
   return (
     <Screen>
@@ -58,11 +54,13 @@ export default function JoinPot() {
             value={code}
             onChangeText={(t) => {
               setCode(t.toUpperCase());
-              setFound(false);
+              setFound(null);
             }}
-            placeholder="WALK-4821"
+            onSubmitEditing={look}
+            placeholder="RUN-2290"
             placeholderTextColor={C.inkFaint}
             autoCapitalize="characters"
+            returnKeyType="search"
             className="flex-1 rounded-2xl bg-surface px-5 py-4 font-displayBlack text-[18px] tracking-widest text-ink"
           />
           <Pressable
@@ -78,17 +76,17 @@ export default function JoinPot() {
           <>
             <SectionHeader title="You're joining" />
             <Card>
-              <Text className="font-display text-xl text-ink">{joinablePot.name}</Text>
+              <Text className="font-display text-xl text-ink">{found.name}</Text>
               <Body dim className="mt-1">
-                {joinablePot.host} started it · {joinablePot.startsIn}
+                {found.members[0]?.name} started it
               </Body>
 
               <View className="mt-5 gap-px overflow-hidden rounded-xl bg-surface2">
                 {[
-                  ['Stake', naira(joinablePot.stakeKobo)],
-                  ['Settles as', modeLabel[joinablePot.mode]],
-                  ['People in', `${joinablePot.members} so far`],
-                  ['Runs for', '7 days'],
+                  ['Stake', naira(found.stakeKobo)],
+                  ['Settles as', modeLabel[found.mode]],
+                  ['People in', `${found.members.length} so far`],
+                  ['Runs for', `${found.totalDays} days`],
                 ].map(([k, v]) => (
                   <View key={k} className="flex-row justify-between bg-surface px-4 py-3">
                     <Body dim>{k}</Body>
@@ -100,14 +98,18 @@ export default function JoinPot() {
               <View className="mt-5 flex-row items-start gap-2">
                 <Ionicons name="lock-closed" size={14} color={C.money} />
                 <Body dim className="flex-1">
-                  {naira(joinablePot.stakeKobo)} leaves your wallet and is held by the
-                  contract until the week closes.
+                  {naira(found.stakeKobo)} leaves your wallet and is held by the contract
+                  until the week closes.
                 </Body>
               </View>
             </Card>
 
             <View className="mt-6">
-              <Button label={`Join for ${naira(joinablePot.stakeKobo)}`} icon="enter-outline" onPress={join} />
+              <Button
+                label={`Join for ${naira(found.stakeKobo)}`}
+                icon="enter-outline"
+                onPress={join}
+              />
             </View>
           </>
         ) : (

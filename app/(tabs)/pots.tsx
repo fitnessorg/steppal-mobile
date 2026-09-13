@@ -4,7 +4,8 @@ import { router } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
 import { AppHeader, Body, Card, Chips, Label, Screen, SectionHeader } from '../../src/components/ui';
 import { usePalette } from '../../src/theme';
-import { modeLabel, naira, pots, type Pot } from '../../src/mock/data';
+import { usePots } from '../../src/store/pots';
+import { modeLabel, naira, type Pot } from '../../src/mock/data';
 
 const FILTERS = ['All', 'Running', 'Finished'] as const;
 type Filter = (typeof FILTERS)[number];
@@ -29,7 +30,8 @@ function PotRow({ pot }: { pot: Pot }) {
           <View className="flex-1 pr-3">
             <Text className="font-display text-lg text-ink">{pot.name}</Text>
             <Body dim className="mt-1">
-              {modeLabel[pot.mode]} · {pot.members.length} people
+              {modeLabel[pot.mode]} · {pot.members.length}{' '}
+              {pot.members.length === 1 ? 'person' : 'people'}
             </Body>
           </View>
           <Ionicons name="chevron-forward" size={18} color={C.inkFaint} />
@@ -41,6 +43,7 @@ function PotRow({ pot }: { pot: Pot }) {
 
 export default function Pots() {
   const C = usePalette();
+  const pots = usePots();
   const [filter, setFilter] = useState<Filter>('All');
 
   const running = pots.filter((p) => p.status === 'active');

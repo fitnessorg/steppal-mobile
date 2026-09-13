@@ -4,7 +4,8 @@ import { router } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
 import { Body, Button, Card, Label, Screen, SectionHeader } from '../../src/components/ui';
 import { usePalette } from '../../src/theme';
-import type { PotMode } from '../../src/mock/data';
+import { createPot } from '../../src/store/pots';
+import { naira, type PotMode } from '../../src/mock/data';
 
 const MODES: { key: PotMode; title: string; blurb: string }[] = [
   {
@@ -29,15 +30,34 @@ export default function CreatePot() {
   const [goal, setGoal] = useState('10000');
 
   // TODO(contributor): POST the pot to the API
-  // Currently confirms and navigates back. steppal-core exposes POST /v1/pots —
-  // creating should place the creator's stake hold in the same transaction as
-  // the membership row.
-  // difficulty: easy
-  const create = () => {
-    if (!name.trim()) return Alert.alert('Give it a name', 'Your friends need to recognise it.');
-    Alert.alert('Demo build', `"${name}" would be created and your stake held.`, [
-      { text: 'OK', onPress: () => router.back() },
-    ]);
+  // createPot() writes to the in-memory store. steppal-core exposes POST /v1/pots
+  // — the stake hold must be inserted in the same transaction as the membership
+  // row, so a half-created pot is impossible.
+  // difficulty: medium
+  const submit = () => {
+    const stakeNaira = Number(stake);
+    const dailyGoal = Number(goal);
+
+    if (!name.trim()) {
+      return Alert.alert('Give it a name', 'Your friends need to recognise it.');
+    }
+    if (!Number.isFinite(stakeNaira) || stakeNaira < 100) {
+      return Alert.alert('Stake too small', 'Use at least ₦100 so it actually stings.');
+    }
+    if (!Number.isFinite(dailyGoal) || dailyGoal < 1000) {
+      return Alert.alert('Goal too low', 'Pick at least 1,000 steps a day.');
+    }
+
+    const pot = createPot({
+      name,
+      mode,
+      stakeKobo: Math.round(stakeNaira * 100),
+      dailyGoal,
+    });
+
+    // Replace, not push: backing out of a new pot should land on the list,
+    // never on the empty form that made it.
+    router.replace(`/pot/${pot.id}?created=1`);
   };
 
   return (
@@ -115,8 +135,16 @@ export default function CreatePot() {
           </View>
         </View>
 
-        <View className="mt-9">
-          <Button label="Create pot" icon="checkmark" onPress={create} />
+        <View className="mt-5 flex-row items-start gap-2">
+          <Ionicons name="lock-closed" size={14} color={C.money} />
+          <Body dim className="flex-1">
+            {naira(Math.round(Number(stake || 0) * 100))} leaves your wallet when you create
+            it, and is held until the week closes.
+          </Body>
+        </View>
+
+        <View className="mt-8">
+          <Button label="Create pot" icon="checkmark" onPress={submit} />
         </View>
       </ScrollView>
     </Screen>
