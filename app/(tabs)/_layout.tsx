@@ -4,15 +4,14 @@ import { Ionicons } from '@expo/vector-icons';
 import { F, usePalette } from '../../src/theme';
 
 /**
- * Icon in a pill for the active tab, label underneath — the pattern Strava
- * and most mature consumer apps use, because the pill gives the active state
- * a shape rather than only a colour.
+ * Icon in a pill for the active tab, label underneath.
  *
  * Labels live in `tabBarLabel`, never in the icon slot: that slot is narrow
- * and wraps longer words like "Wallet" onto two lines.
+ * and wraps longer words onto two lines.
  */
 const TABS = [
   { name: 'home', title: 'Today', icon: 'footsteps' },
+  { name: 'feed', title: 'Feed', icon: 'megaphone' },
   { name: 'pots', title: 'Pots', icon: 'trophy' },
   { name: 'wallet', title: 'Wallet', icon: 'wallet' },
   { name: 'profile', title: 'You', icon: 'person' },
@@ -30,7 +29,7 @@ export default function TabsLayout() {
         tabBarInactiveTintColor: C.inkFaint,
         tabBarLabelStyle: {
           fontFamily: F.bodyMed,
-          fontSize: 11,
+          fontSize: 10.5,
           marginTop: 4,
           includeFontPadding: false,
         },
@@ -54,7 +53,7 @@ export default function TabsLayout() {
             tabBarIcon: ({ focused }) => (
               <View
                 style={{
-                  paddingHorizontal: 18,
+                  paddingHorizontal: 14,
                   paddingVertical: 5,
                   borderRadius: 999,
                   backgroundColor: focused ? C.surface2 : 'transparent',
@@ -62,7 +61,7 @@ export default function TabsLayout() {
               >
                 <Ionicons
                   name={focused ? t.icon : (`${t.icon}-outline` as never)}
-                  size={20}
+                  size={19}
                   color={focused ? C.accent : C.inkFaint}
                 />
               </View>
