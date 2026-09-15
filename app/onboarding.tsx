@@ -27,16 +27,46 @@ export default function Onboarding() {
   const [goal, setGoal] = useState(10_000);
   const [granted, setGranted] = useState(false);
 
+  /**
+   * Nothing here may throw into the void. A step source can fail for reasons
+   * that are not the user's problem — no native module in this build, Health
+   * Connect not installed, permission dialog dismissed — and every one of them
+   * should end as a readable sentence, never an unhandled rejection.
+   */
   const link = async () => {
     const source = getStepSource();
-    const status = await source.status();
-    if (status === 'not_installed') {
+
+    if (source.name === 'mock') {
+      setGranted(true);
       return Alert.alert(
-        'Health Connect needed',
-        'Install Health Connect from the Play Store, then come back.',
+        'Using sample data',
+        'This build reads steps from a sample set. Install the dev build to read your real ones.',
       );
     }
-    setGranted(await source.requestPermission());
+
+    try {
+      const status = await source.status();
+      if (status === 'not_installed') {
+        return Alert.alert(
+          'Health Connect needed',
+          'Install Health Connect from the Play Store, then come back.',
+        );
+      }
+      if (status === 'unsupported') {
+        setGranted(true);
+        return Alert.alert(
+          'Not on this device',
+          'This phone has no Health Connect. StepPal will count steps live while the app is open.',
+        );
+      }
+      setGranted(await source.requestPermission());
+    } catch {
+      setGranted(true);
+      Alert.alert(
+        'Could not reach your step data',
+        'StepPal will count steps live while the app is open. You can connect health data later from You.',
+      );
+    }
   };
 
   const done = () => {
