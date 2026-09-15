@@ -3,24 +3,68 @@ import { MockStepSource } from './mock';
 import type { StepSource } from './types';
 
 export * from './types';
+export { startLiveCount, getLiveCount, resetLiveCount } from './pedometer';
 
 /**
- * Flip to false once you have a dev build containing
- * react-native-health-connect. Until then the mock keeps the app runnable for
- * everyone, including contributors with no Android device.
+ * Picks the best step source this build can actually run, in order:
  *
- * TODO(contributor): drive this from an env var rather than a constant
- * EXPO_PUBLIC_STEP_SOURCE=health_connect|mock, read via process.env.
- * difficulty: easy
+ *   1. Health Connect — full seven-day history. Needs a dev build containing
+ *      react-native-health-connect.
+ *   2. Pedometer — hardware step counter via expo-sensors. Works in Expo Go,
+ *      but Android gives live counting only, no history.
+ *   3. Mock — sample data. Keeps the app runnable for everyone.
+ *
+ * Detection is at runtime, not a hand-flipped constant: `npm install` puts a
+ * native module in node_modules but NOT into an already-built APK. So each
+ * candidate is required in a try/catch and skipped if its native side is
+ * missing.
+ *
+ * Force sample data with EXPO_PUBLIC_STEP_SOURCE=mock — useful when recording
+ * a demo, where the same numbers on every take matter more than real ones.
  */
-const USE_MOCK = true;
+let cached: StepSource | null = null;
 
 export function getStepSource(): StepSource {
-  if (USE_MOCK || Platform.OS !== 'android') return MockStepSource;
+  if (cached) return cached;
 
-  // Required lazily: importing the native module on a build that lacks it
-  // throws at module load, which would take down the whole app.
-  // eslint-disable-next-line @typescript-eslint/no-require-imports
-  const { HealthConnectStepSource } = require('./healthConnect');
-  return HealthConnectStepSource as StepSource;
+  if (process.env.EXPO_PUBLIC_STEP_SOURCE === 'mock') {
+    cached = MockStepSource;
+    return cached;
+  }
+
+  if (Platform.OS === 'android') {
+    try {
+      // eslint-disable-next-line @typescript-eslint/no-require-imports
+      const mod = require('./healthConnect') as { HealthConnectStepSource: StepSource };
+      if (!mod?.HealthConnectStepSource) throw new Error('no export');
+      cached = mod.HealthConnectStepSource;
+      return cached;
+    } catch {
+      // Falls through to the pedometer.
+    }
+  }
+
+  try {
+    // eslint-disable-next-line @typescript-eslint/no-require-imports
+    const mod = require('./pedometer') as { PedometerStepSource: StepSource };
+    if (!mod?.PedometerStepSource) throw new Error('no export');
+    cached = mod.PedometerStepSource;
+    return cached;
+  } catch {
+    console.warn('[steppal] no step source available — using sample data');
+    cached = MockStepSource;
+    return cached;
+  }
+}
+
+/** True when real device data is being read. Screens can label the difference. */
+export function isLiveSource(): boolean {
+  return getStepSource().name !== 'mock';
+}
+
+export function sourceLabel(): string {
+  const n = getStepSource().name;
+  if (n === 'health_connect') return 'Health Connect';
+  if (n === 'pedometer') return 'Step counter';
+  return 'Sample data';
 }

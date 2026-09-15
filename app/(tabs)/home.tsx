@@ -14,7 +14,12 @@ import {
   useThemeCycle,
 } from '../../src/components/ui';
 import { usePalette } from '../../src/theme';
-import { getStepSource, type DailySteps } from '../../src/health';
+import {
+  getStepSource,
+  sourceLabel,
+  startLiveCount,
+  type DailySteps,
+} from '../../src/health';
 import { naira, steps, user, week } from '../../src/mock/data';
 import { useActivePot } from '../../src/store/pots';
 
@@ -49,6 +54,16 @@ export default function Home() {
 
   useEffect(() => {
     sync();
+  }, [sync]);
+
+  /**
+   * The pedometer only counts while something is subscribed, so start it on
+   * mount and let it run for the life of the screen. Health Connect ignores
+   * this — it reads history instead.
+   */
+  useEffect(() => {
+    if (source.name !== 'pedometer') return;
+    return startLiveCount(() => sync());
   }, [sync]);
 
   // TODO(contributor): sync on app foreground and queue failures
@@ -89,9 +104,14 @@ export default function Home() {
             <Label>Wednesday</Label>
             <Text className="mt-1 font-display text-xl text-ink">Morning, {user.name}</Text>
           </View>
-          <Text className="font-body text-[11px] text-inkFaint">
-            {syncing ? 'Syncing…' : `Synced ${synced}`}
-          </Text>
+          <View className="items-end">
+            <Text className="font-body text-[11px] text-inkFaint">
+              {syncing ? 'Syncing…' : `Synced ${synced}`}
+            </Text>
+            <Text className="mt-0.5 font-bodyMed text-[10px] uppercase tracking-[1px] text-inkFaint">
+              {sourceLabel()}
+            </Text>
+          </View>
         </View>
 
         <Card className="mt-5">
