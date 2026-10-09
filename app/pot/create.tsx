@@ -29,12 +29,12 @@ export default function CreatePot() {
   const [stake, setStake] = useState('5000');
   const [goal, setGoal] = useState('10000');
 
-  // TODO(contributor): POST the pot to the API
-  // createPot() writes to the in-memory store. steppal-core exposes POST /v1/pots
-  // — the stake hold must be inserted in the same transaction as the membership
-  // row, so a half-created pot is impossible.
-  // difficulty: medium
-  const submit = () => {
+  /**
+   * Creates against the API when one is configured, and against the in-memory
+   * store otherwise. The pot and the creator's membership are written in one
+   * transaction server-side, so a half-created pot cannot exist.
+   */
+  const submit = async () => {
     const stakeNaira = Number(stake);
     const dailyGoal = Number(goal);
 
@@ -48,16 +48,20 @@ export default function CreatePot() {
       return Alert.alert('Goal too low', 'Pick at least 1,000 steps a day.');
     }
 
-    const pot = createPot({
-      name,
-      mode,
-      stakeKobo: Math.round(stakeNaira * 100),
-      dailyGoal,
-    });
+    try {
+      const pot = await createPot({
+        name,
+        mode,
+        stakeKobo: Math.round(stakeNaira * 100),
+        dailyGoal,
+      });
 
-    // Replace, not push: backing out of a new pot should land on the list,
-    // never on the empty form that made it.
-    router.replace(`/pot/${pot.id}?created=1`);
+      // Replace, not push: backing out of a new pot should land on the list,
+      // never on the empty form that made it.
+      router.replace(`/pot/${pot.id}?created=1`);
+    } catch {
+      Alert.alert('Could not create the pot', 'Check your connection and try again.');
+    }
   };
 
   return (

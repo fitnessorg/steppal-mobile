@@ -7,6 +7,14 @@ import {
   type Pot,
   type PotMode,
 } from '../mock/data';
+import { isLive } from '../api/client';
+import {
+  createPotRemote,
+  fetchPot,
+  fetchPots,
+  findByCodeRemote,
+  joinByCodeRemote,
+} from '../api/pots';
 
 /**
  * In-memory pot store.
@@ -16,8 +24,13 @@ import {
  * demo needs, and it keeps the shape of the data identical to what the API will
  * return.
  *
- * TODO(contributor): back this with @steppal/sdk
- * Replace the mutators with API calls and the reads with TanStack Query.
+ * With EXPO_PUBLIC_API_URL set it is a cache in front of the API instead: the
+ * mutators call the server and replace the array with what came back, and the
+ * screens never learn the difference. Reads stay synchronous, which is what
+ * keeps every screen unchanged between the two modes.
+ *
+ * TODO(contributor): replace the hand-rolled cache with TanStack Query
+ * This has no retry, no stale-while-revalidate and no request de-duplication.
  * The exported hook signatures should not have to change.
  * difficulty: medium
  */
@@ -115,8 +128,53 @@ export type NewPot = {
   dailyGoal: number;
 };
 
+/**
+ * Pulls the signed-in user's pots from the server.
+ *
+ * A no-op in demo mode, so screens can call it on mount without branching.
+ */
+export async function hydratePots(): Promise<void> {
+  if (!isLive()) return;
+  try {
+    pots = await fetchPots();
+    emit();
+  } catch {
+    // Keep whatever is already on screen. A failed refresh should not blank
+    // a list the user was reading on a moving bus.
+  }
+}
+
+/** Refreshes one pot with its standings, which the list view does not carry. */
+export async function hydratePot(id: string): Promise<void> {
+  if (!isLive()) return;
+  try {
+    const fresh = await fetchPot(id);
+    pots = pots.some((p) => p.id === id)
+      ? pots.map((p) => (p.id === id ? { ...fresh, chat: p.chat } : p))
+      : [fresh, ...pots];
+    emit();
+  } catch {
+    // Same reasoning as above.
+  }
+}
+
 /** Creates the pot, puts you in it, holds your stake. Returns the new pot. */
-export function createPot(input: NewPot): Pot {
+export async function createPot(input: NewPot): Promise<Pot> {
+  if (isLive()) {
+    const pot = await createPotRemote({
+      name: input.name.trim(),
+      dailyGoal: input.dailyGoal,
+      stakeKobo: input.stakeKobo,
+    });
+    pots = [pot, ...pots];
+    emit();
+    return pot;
+  }
+
+  return createPotLocal(input);
+}
+
+function createPotLocal(input: NewPot): Pot {
   const pot: Pot = {
     id: slugify(input.name),
     name: input.name.trim(),
@@ -145,14 +203,23 @@ export function createPot(input: NewPot): Pot {
 }
 
 /** Looks a code up without joining. Used for the preview before staking. */
-export function findByCode(code: string): Pot | undefined {
+export async function findByCode(code: string): Promise<Pot | undefined> {
+  if (isLive()) return findByCodeRemote(code.trim());
+
   const needle = code.trim().toUpperCase();
   return [...joinable, ...pots].find((p) => p.inviteCode.toUpperCase() === needle);
 }
 
 /** Adds you to a joinable pot and moves it into your list. Returns the pot. */
-export function joinByCode(code: string): Pot | undefined {
-  const found = findByCode(code);
+export async function joinByCode(code: string): Promise<Pot | undefined> {
+  if (isLive()) {
+    const joined = await joinByCodeRemote(code.trim());
+    pots = [joined, ...pots.filter((p) => p.id !== joined.id)];
+    emit();
+    return joined;
+  }
+
+  const found = await findByCode(code);
   if (!found) return undefined;
   if (pots.some((p) => p.id === found.id)) return found;
 

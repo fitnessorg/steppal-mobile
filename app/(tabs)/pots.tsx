@@ -1,10 +1,10 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { Pressable, ScrollView, Text, View } from 'react-native';
 import { router } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
 import { AppHeader, Body, Card, Chips, Label, Screen, SectionHeader } from '../../src/components/ui';
 import { usePalette } from '../../src/theme';
-import { usePots } from '../../src/store/pots';
+import { hydratePots, usePots } from '../../src/store/pots';
 import { modeLabel, naira, type Pot } from '../../src/mock/data';
 
 const FILTERS = ['All', 'Running', 'Finished'] as const;
@@ -42,6 +42,11 @@ function PotRow({ pot }: { pot: Pot }) {
 }
 
 export default function Pots() {
+  // Refresh from the server whenever the tab is opened. A no-op in demo mode.
+  useEffect(() => {
+    void hydratePots();
+  }, []);
+
   const C = usePalette();
   const pots = usePots();
   const [filter, setFilter] = useState<Filter>('All');

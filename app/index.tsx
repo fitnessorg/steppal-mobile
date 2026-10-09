@@ -1,7 +1,7 @@
 import { useEffect, useRef } from 'react';
 import { Animated, Easing, Image, View } from 'react-native';
 import { router } from 'expo-router';
-import { hasSeenOnboarding } from '../src/session';
+import { bootstrapSession, hasSeenOnboarding } from '../src/session';
 
 /**
  * Launch screen. The native splash (flame ground, white mark) hands over to
@@ -30,11 +30,21 @@ export default function Launch() {
       }),
     ]).start();
 
-    const t = setTimeout(
-      () => router.replace(hasSeenOnboarding() ? '/(tabs)/home' : '/onboarding'),
-      1400,
-    );
-    return () => clearTimeout(t);
+    // The splash beat and the session restore run together. Whichever finishes
+    // last decides when we route, so a fast restore still gets the full brand
+    // moment and a slow one never shows a half-drawn screen.
+    let cancelled = false;
+    const beat = new Promise((resolve) => setTimeout(resolve, 1400));
+
+    void Promise.all([beat, bootstrapSession()]).then(([, session]) => {
+      if (cancelled) return;
+      if (session.status === 'signed-out') return router.replace('/sign-in');
+      router.replace(hasSeenOnboarding() ? '/(tabs)/home' : '/onboarding');
+    });
+
+    return () => {
+      cancelled = true;
+    };
   }, [fade, rise]);
 
   return (

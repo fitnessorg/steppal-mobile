@@ -1,20 +1,79 @@
 # StepPal Mobile
 
-StepPal is a group step-count challenge app: friends form a pot, each stakes money, and the pot is
-settled at the end of the week based on who hit their step goals. This repo is the Android mobile
-client, built with [Expo](https://expo.dev) and [expo-router](https://docs.expo.dev/router/introduction/).
+**StepPal is a commitment app.** You put money behind a step goal, and a
+contract holds it until you have either earned it back or lost it.
 
-This app talks to the StepPal backend exclusively through the [`@steppal/sdk`](https://github.com/)
-package (from the `steppal-core` repo) — there is no raw `fetch` to the API anywhere in this codebase.
+This repo is the Android client, built with [Expo](https://expo.dev) and
+[expo-router](https://docs.expo.dev/router/introduction/). The API, the
+settlement rules and the Soroban escrow live in
+[steppal-core](https://github.com/fitnessorg/steppal-core).
 
-> **Status: ~65% built, on purpose.** This is an open-source project and large parts are deliberately
-> left unfinished and marked `TODO(contributor)` so there's real work for contributors to pick up.
-> See [CONTRIBUTING-TASKS.md](./CONTRIBUTING-TASKS.md) for the full list, and
-> [CONTRIBUTING.md](./CONTRIBUTING.md) for how to submit a PR.
+## Two modes, and you pick with one environment variable
 
-The UI is intentionally plain — no design polish, no animations, no custom components beyond what's
-needed to show correct data and correct states. It will be redesigned later; right now it exists to
-prove the app works.
+**Demo mode** is the default. Leave `EXPO_PUBLIC_API_URL` unset and the app runs
+entirely on mock data — no server, no account, nothing to install. Clone it and
+you are looking at the whole app in ninety seconds. This is also how the demo
+video gets identical numbers on every take.
+
+**Live mode** needs a running steppal-core. Set `EXPO_PUBLIC_API_URL` and you
+get real phone sign-in, real pots shared with real friends, and step counts
+pushed to the server that scores them.
+
+```bash
+cp .env.example .env
+# edit EXPO_PUBLIC_API_URL if you want live mode
+npm install
+npx expo start
+```
+
+The two modes share every screen. Nothing branches on which one is running
+except the store and the session — that is the point of keeping reads
+synchronous.
+
+## What works today
+
+| | Demo | Live |
+| --- | --- | --- |
+| Today, step ring, week grid | mock steps | Health Connect or pedometer, synced to the server |
+| Phone sign-in with a six-digit code | skipped | yes |
+| Create a pot, invite code, join by code | local | server, shared with friends |
+| Pot standings | mock | real, from everyone's submitted steps |
+| Pot chat | local to this device | local to this device — no server yet |
+| Feed, pledges, tipping, sponsored goals | mock | mock — not wired to the contract yet |
+| Wallet | mock | mock — no payment provider yet |
+
+Stakes are **zero** everywhere. The money-free version ships first: it proves
+whether people walk more when their friends are watching, which has to be true
+before money makes any sense.
+
+## The SDK is vendored, not installed
+
+`src/sdk/` is a copy of `steppal-core/packages/sdk`. The repos are separate on
+purpose and the package is not on npm yet, so it is copied rather than
+installed. Refresh it after the API changes:
+
+```bash
+bash scripts/sync-sdk.sh ../steppal-core
+```
+
+Nothing in this codebase calls `fetch` on the API directly — everything goes
+through `src/api/client.ts`, which owns the token storage and the refresh
+retry.
+
+### Session storage
+
+Tokens belong in the keychain. `expo-secure-store` is the right home, but it is
+a native module, so it is missing from Expo Go and from any build made before
+it was installed. `src/api/storage.ts` detects that at runtime and falls back
+to memory — the app still works, you just sign in again after a restart.
+
+To get persistent sessions:
+
+```bash
+npx expo install expo-secure-store
+# then rebuild the dev client — npm install does not put native code into an
+# APK that already exists
+```
 
 ## Why a "development build" and not Expo Go?
 

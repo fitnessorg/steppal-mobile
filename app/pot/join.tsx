@@ -6,6 +6,7 @@ import { Body, Button, Card, Label, Screen, SectionHeader } from '../../src/comp
 import { usePalette } from '../../src/theme';
 import { findByCode, joinByCode } from '../../src/store/pots';
 import { modeLabel, naira, type Pot } from '../../src/mock/data';
+import { StepPalError } from '../../src/sdk';
 
 /**
  * Closes the invite loop: someone shares a code, you paste it, you see exactly
@@ -16,19 +17,38 @@ export default function JoinPot() {
   const [code, setCode] = useState('');
   const [found, setFound] = useState<Pot | null>(null);
 
-  const look = () => {
-    const hit = findByCode(code);
+  const look = async () => {
+    const hit = await findByCode(code);
     if (!hit) {
       return Alert.alert('No pot with that code', 'Check it with whoever sent it.');
     }
     setFound(hit);
   };
 
-  const join = () => {
+  /**
+   * The server has the final say on whether joining is allowed — it refuses a
+   * pot that has already started, is full, or has settled. Those arrive as
+   * codes, and the words shown here are chosen locally.
+   */
+  const join = async () => {
     if (!found) return;
-    const pot = joinByCode(found.inviteCode);
-    if (!pot) return;
-    router.replace(`/pot/${pot.id}`);
+    try {
+      const pot = await joinByCode(found.inviteCode);
+      if (!pot) return;
+      router.replace(`/pot/${pot.id}`);
+    } catch (err) {
+      const code = err instanceof StepPalError ? err.code : '';
+      Alert.alert(
+        'Could not join',
+        code === 'pot_already_started'
+          ? 'This pot has already started. Ask them to run it back next week.'
+          : code === 'pot_full'
+            ? 'This pot is full.'
+            : code === 'pot_settled'
+              ? 'This pot is already over.'
+              : 'Check your connection and try again.',
+      );
+    }
   };
 
   return (

@@ -1,4 +1,5 @@
-import { Linking, ScrollView, Text, View } from 'react-native';
+import { Alert, Linking, Pressable, ScrollView, Text, View } from 'react-native';
+import { router } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
 import {
   AppHeader,
@@ -6,6 +7,7 @@ import {
   Button,
   Card,
   Divider,
+  Label,
   Logo,
   Screen,
   SectionHeader,
@@ -13,6 +15,8 @@ import {
 } from '../../src/components/ui';
 import { usePalette } from '../../src/theme';
 import { stats, steps, user } from '../../src/mock/data';
+import { isLive } from '../../src/api/client';
+import { signOut, useSession } from '../../src/session';
 
 const STATS: [string, string][] = [
   ['Pots played', String(stats.potsPlayed)],
@@ -22,6 +26,7 @@ const STATS: [string, string][] = [
 ];
 
 export default function Profile() {
+  const session = useSession();
   const C = usePalette();
   const theme = useThemeCycle();
 
@@ -85,13 +90,35 @@ export default function Profile() {
           </Body>
         </Card>
 
-        {/*
-          TODO(contributor): real auth and sign out
-          No account exists in this build. steppal-core has phone OTP endpoints;
-          wire them, store tokens in expo-secure-store, and gate the tabs behind
-          a session.
-          difficulty: medium
-        */}
+        {session.status === 'signed-in' && isLive() ? (
+          <Card className="mt-3">
+            <Label>Account</Label>
+            <Text className="mt-2 font-bodyMed text-[15px] text-ink">
+              {session.user.displayName}
+            </Text>
+            <Body dim className="mt-1">
+              {session.user.phone}
+            </Body>
+
+            <Pressable
+              onPress={() =>
+                Alert.alert('Sign out?', 'You will need your phone to sign back in.', [
+                  { text: 'Cancel', style: 'cancel' },
+                  {
+                    text: 'Sign out',
+                    style: 'destructive',
+                    onPress: () => {
+                      void signOut().then(() => router.replace('/sign-in'));
+                    },
+                  },
+                ])
+              }
+              className="mt-4 active:opacity-60"
+            >
+              <Text className="font-bodyBold text-[14px] text-flame">Sign out</Text>
+            </Pressable>
+          </Card>
+        ) : null}
 
         <View className="mt-12 items-center gap-3 pb-2">
           <Logo size={32} />

@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useState } from 'react';
-import { Pressable, ScrollView, Text, View } from 'react-native';
+import { AppState, Pressable, ScrollView, Text, View } from 'react-native';
 import { router } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
 import {
@@ -22,6 +22,7 @@ import {
 } from '../../src/health';
 import { naira, steps, user, week } from '../../src/mock/data';
 import { useActivePot } from '../../src/store/pots';
+import { syncSteps } from '../../src/api/steps';
 
 const source = getStepSource();
 
@@ -44,7 +45,12 @@ export default function Home() {
       const from = new Date();
       from.setDate(from.getDate() - 6);
       setDays(await source.getRange(from, to));
-      setSynced('just now');
+
+      // Read locally first, then push. The screen should show the right number
+      // even when the server is unreachable — a failed upload is the server's
+      // problem, not a reason to show a blank ring.
+      const uploaded = await syncSteps();
+      setSynced(uploaded.status === 'failed' ? 'saved on device' : 'just now');
     } catch {
       setSynced('failed');
     } finally {
@@ -66,10 +72,24 @@ export default function Home() {
     return startLiveCount(() => sync());
   }, [sync]);
 
-  // TODO(contributor): sync on app foreground and queue failures
-  // Right now it syncs once on mount. Add an AppState listener, and retry a
-  // failed sync on the next foreground rather than losing it.
-  // difficulty: medium
+  /**
+   * Re-sync whenever the app comes back to the foreground.
+   *
+   * This is where the steps actually arrive: people walk with the phone in a
+   * pocket and the app suspended, so the interesting number is always the one
+   * that accumulated while nothing was watching.
+   *
+   * TODO(contributor): queue a failed upload instead of waiting for the next
+   * foreground. The endpoint is idempotent on (user, day), so a replayed queue
+   * is safe by construction — see packages/sdk in steppal-core.
+   * difficulty: medium
+   */
+  useEffect(() => {
+    const subscription = AppState.addEventListener('change', (next) => {
+      if (next === 'active') void sync();
+    });
+    return () => subscription.remove();
+  }, [sync]);
 
   const today = days.at(-1)?.steps ?? 0;
   const progress = today / user.dailyGoal;

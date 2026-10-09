@@ -14,7 +14,7 @@ import { Ionicons } from '@expo/vector-icons';
 import { Body, Card, Divider, Label, Screen, SectionHeader } from '../../src/components/ui';
 import { Segmented } from '../../src/components/segmented';
 import { usePalette } from '../../src/theme';
-import { sendMessage, usePot } from '../../src/store/pots';
+import { hydratePot, sendMessage, usePot } from '../../src/store/pots';
 import { modeLabel, naira, steps, type ChatMessage } from '../../src/mock/data';
 
 const TABS = ['Leaderboard', 'Chat'] as const;
@@ -48,6 +48,11 @@ export default function PotDetail() {
   const C = usePalette();
   const { id, created } = useLocalSearchParams<{ id: string; created?: string }>();
   const pot = usePot(id);
+
+  // The list view carries no standings, so pull the full pot when it opens.
+  useEffect(() => {
+    if (id) void hydratePot(id);
+  }, [id]);
 
   const [tab, setTab] = useState<Tab>('Leaderboard');
   const [draft, setDraft] = useState('');
