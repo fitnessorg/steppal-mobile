@@ -1,4 +1,4 @@
-import { useEffect, useRef } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { Animated, Easing, Pressable, ScrollView, Text, View } from 'react-native';
 import { router, useLocalSearchParams } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
@@ -20,8 +20,8 @@ export default function PotResult() {
   const pot = pots.find((p) => p.id === id) ?? pots.find((p) => p.status === 'settled')!;
   const payout = pot.payoutKobo ?? 0;
 
-  const count = useRef(new Animated.Value(0)).current;
-  const pop = useRef(new Animated.Value(0.9)).current;
+  const [count] = useState(() => new Animated.Value(0));
+  const [pop] = useState(() => new Animated.Value(0.9));
   const amount = useRef<Text>(null);
 
   useEffect(() => {

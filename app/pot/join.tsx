@@ -2,7 +2,7 @@ import { useState } from 'react';
 import { Alert, Pressable, ScrollView, Text, TextInput, View } from 'react-native';
 import { router } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
-import { Body, Button, Card, Label, Screen, SectionHeader } from '../../src/components/ui';
+import { Body, Button, Card, Screen, SectionHeader } from '../../src/components/ui';
 import { usePalette } from '../../src/theme';
 import { findByCode, joinByCode } from '../../src/store/pots';
 import { modeLabel, naira, type Pot } from '../../src/mock/data';

@@ -1,4 +1,4 @@
-import { useEffect, useRef } from 'react';
+import { useEffect, useState } from 'react';
 import { Animated, Easing, Image, View } from 'react-native';
 import { router } from 'expo-router';
 import { bootstrapSession, hasSeenOnboarding } from '../src/session';
@@ -11,8 +11,8 @@ import { bootstrapSession, hasSeenOnboarding } from '../src/session';
  * OS, and it makes the handover from the native splash seamless.
  */
 export default function Launch() {
-  const fade = useRef(new Animated.Value(0)).current;
-  const rise = useRef(new Animated.Value(18)).current;
+  const [fade] = useState(() => new Animated.Value(0));
+  const [rise] = useState(() => new Animated.Value(18));
 
   useEffect(() => {
     Animated.parallel([

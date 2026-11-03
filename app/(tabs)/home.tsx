@@ -59,7 +59,13 @@ export default function Home() {
   }, []);
 
   useEffect(() => {
-    sync();
+    let active = true;
+    void Promise.resolve().then(() => {
+      if (active) sync();
+    });
+    return () => {
+      active = false;
+    };
   }, [sync]);
 
   /**
