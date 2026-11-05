@@ -2,7 +2,15 @@ import { useEffect, useRef, useState } from 'react';
 import { Animated, Easing, Pressable, ScrollView, Text, View } from 'react-native';
 import { router, useLocalSearchParams } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
-import { Body, Button, Card, Divider, Label, Screen, SectionHeader } from '../../../src/components/ui';
+import {
+  Body,
+  Button,
+  Card,
+  Divider,
+  Label,
+  Screen,
+  SectionHeader,
+} from '../../../src/components/ui';
 import { usePalette } from '../../../src/theme';
 import { naira, steps } from '../../../src/mock/data';
 import { usePots } from '../../../src/store/pots';
@@ -84,8 +92,8 @@ export default function PotResult() {
             <View className="flex-1">
               <Text className="font-bodyBold text-[15px] text-ink">Settled by the contract</Text>
               <Body dim className="mt-1">
-                Results were posted, the 24-hour dispute window closed with no flags, and
-                the pot paid out on its own. Nobody had to be trusted.
+                Results were posted, the 24-hour dispute window closed with no flags, and the pot
+                paid out on its own. Nobody had to be trusted.
               </Body>
             </View>
           </View>
@@ -109,17 +117,21 @@ export default function PotResult() {
           ))}
         </Card>
 
-        {/*
-          TODO(contributor): rematch creates the next pot
-          Most groups never recreate a pot by hand, but almost all will tap
-          "Run it back". Prefill create with the same members, stake and mode.
-          difficulty: easy
-        */}
         <View className="mt-8 gap-3">
           <Button
             label="Run it back"
             icon="refresh"
-            onPress={() => router.push('/pot/create')}
+            onPress={() =>
+              router.push({
+                pathname: '/pot/create',
+                params: {
+                  name: pot?.name ? `${pot.name} (Rematch)` : 'Rematch',
+                  mode: pot?.mode ?? 'forfeit',
+                  stake: String(Math.round((pot?.stakeKobo ?? 500000) / 100)),
+                  goal: '10000',
+                },
+              })
+            }
           />
           <Button
             label="Back to pots"

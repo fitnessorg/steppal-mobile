@@ -15,29 +15,32 @@ the body) so work does not collide.
 ## Good first issues
 
 ### Persist onboarding state [COMPLETED]
+
 **File:** `src/session.ts` · **Difficulty:** easy
 
-*Status:* Resolved. Onboarding completion is persisted in `tokenStore` under `steppal.onboarding_seen` and read during `bootstrapSession()` prior to initial routing.
+_Status:_ Resolved. Onboarding completion is persisted in `tokenStore` under `steppal.onboarding_seen` and read during `bootstrapSession()` prior to initial routing.
 
 ### Persist the theme choice [COMPLETED]
+
 **File:** `src/components/ui.tsx`, `src/theme.ts`, `app/_layout.tsx` · **Difficulty:** easy
 
-*Status:* Resolved. User theme preference (`light`, `dark`, or `system`) is persisted via `persistTheme()` and applied in `RootLayout` before hiding the native splash screen, preventing cold-start theme flashes.
+_Status:_ Resolved. User theme preference (`light`, `dark`, or `system`) is persisted via `persistTheme()` and applied in `RootLayout` before hiding the native splash screen, preventing cold-start theme flashes.
 
-### Empty states for the live pot list
+### Empty states for the live pot list [COMPLETED]
+
 **File:** `app/(tabs)/pots.tsx` · **Difficulty:** easy
 
-In live mode a new account has no pots and the list renders nothing at all.
-Show something that explains how to start or join one.
+_Status:_ Resolved. Configured helpful empty state callout in `app/(tabs)/pots.tsx` displaying guidance and quick actions to start or join a pot when the list has no running or finished pots.
 
 ---
 
 ## Wiring the app to the server
 
 ### Queue failed step uploads
+
 **File:** `app/(tabs)/home.tsx`, `src/api/steps.ts` · **Difficulty:** medium
 
-Steps sync on foreground. A failed upload is retried on the *next* foreground,
+Steps sync on foreground. A failed upload is retried on the _next_ foreground,
 which on a bad connection can be hours. Queue them and flush on reconnect.
 
 The endpoint is idempotent on `(user, day)`, so replaying a queue is safe by
@@ -47,6 +50,7 @@ construction — a duplicate flush changes nothing.
 double-counting.
 
 ### Pot chat needs a server
+
 **File:** `src/api/pots.ts` · **Difficulty:** hard
 
 Messages live only on the device that sent them, so the chat in a shared pot is
@@ -57,6 +61,7 @@ Decide what happens to the backlog when someone joins mid-pot, and whether
 system messages ("Tunde joined") are stored or derived.
 
 ### Live standings instead of polling
+
 **File:** `app/pot/[id].tsx` · **Difficulty:** medium
 
 The pot screen pulls once when opened. A pot is a group watching each other, and
@@ -64,6 +69,7 @@ a screen that only updates on open feels dead. Subscribe once steppal-core
 exposes the socket.
 
 ### Wire the wallet to a payment provider
+
 **File:** `app/(tabs)/wallet.tsx` · **Difficulty:** hard
 
 Both buttons are inert. steppal-core exposes the endpoints behind a
@@ -74,6 +80,7 @@ The hard half is **disbursement**, not collection: paying a winner who is not
 the merchant. Check the provider has a transfer API before writing a line.
 
 ### Connect the feed to the escrow contract
+
 **File:** `src/store/feed.ts` · **Difficulty:** hard
 
 Pledges, tips and sponsored goals are mock-only. The shapes already mirror
@@ -89,6 +96,7 @@ only has to reflect them.
 ## Health and platform
 
 ### Finish the Health Connect permission flow
+
 **File:** `app/onboarding.tsx`, `src/health/healthConnect.ts` · **Difficulty:** hard
 
 Permission is requested and failures are handled, but the "Health Connect is
@@ -99,22 +107,24 @@ back into the flow from the You tab for someone who declined.
 it, and a declined permission can be granted later without reinstalling.
 
 ### iOS support
+
 **File:** `src/health/` · **Difficulty:** hard
 
 Android only today. HealthKit is the iOS equivalent; the `StepSource` interface
 already exists for exactly this, so no screen should need to change.
 
-### Rematch creates the next pot
-**File:** `app/pot/result/[id].tsx` · **Difficulty:** medium
+### Rematch creates the next pot [COMPLETED]
 
-Most groups never recreate a pot by hand, but almost all will tap "Run it
-back". Prefill the create form with the same members, stake and goal.
+**File:** `app/pot/result/[id].tsx`, `app/pot/create.tsx` · **Difficulty:** medium
+
+_Status:_ Resolved. Tapping "Run it back" routes to `app/pot/create.tsx` prefilled with the pot name, settlement mode, stake, and daily step goal via `useLocalSearchParams`.
 
 ---
 
 ## Testing
 
 ### There are no tests
+
 **Difficulty:** medium
 
 steppal-core has 43. This repo has none. Start with the parts where a bug is

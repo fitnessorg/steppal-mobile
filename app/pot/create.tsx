@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { Alert, Pressable, ScrollView, Text, TextInput, View } from 'react-native';
-import { router } from 'expo-router';
+import { router, useLocalSearchParams } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
 import { Body, Button, Card, Label, Screen, SectionHeader } from '../../src/components/ui';
 import { usePalette } from '../../src/theme';
@@ -24,10 +24,19 @@ const MODES: { key: PotMode; title: string; blurb: string }[] = [
 
 export default function CreatePot() {
   const C = usePalette();
-  const [name, setName] = useState('');
-  const [mode, setMode] = useState<PotMode>('forfeit');
-  const [stake, setStake] = useState('5000');
-  const [goal, setGoal] = useState('10000');
+  const params = useLocalSearchParams<{
+    name?: string;
+    mode?: string;
+    stake?: string;
+    goal?: string;
+  }>();
+
+  const [name, setName] = useState(params.name ?? '');
+  const [mode, setMode] = useState<PotMode>(
+    params.mode === 'winner_takes_all' || params.mode === 'forfeit' ? params.mode : 'forfeit',
+  );
+  const [stake, setStake] = useState(params.stake ?? '5000');
+  const [goal, setGoal] = useState(params.goal ?? '10000');
 
   /**
    * Creates against the API when one is configured, and against the in-memory
@@ -99,7 +108,9 @@ export default function CreatePot() {
               <Pressable key={m.key} onPress={() => setMode(m.key)} className="active:opacity-80">
                 <Card className={on ? 'border border-accent' : 'border border-transparent'}>
                   <View className="flex-row items-center justify-between">
-                    <Text className={`font-bodyBold text-[15px] ${on ? 'text-accent' : 'text-ink'}`}>
+                    <Text
+                      className={`font-bodyBold text-[15px] ${on ? 'text-accent' : 'text-ink'}`}
+                    >
                       {m.title}
                     </Text>
                     <Ionicons
@@ -142,8 +153,8 @@ export default function CreatePot() {
         <View className="mt-5 flex-row items-start gap-2">
           <Ionicons name="lock-closed" size={14} color={C.money} />
           <Body dim className="flex-1">
-            {naira(Math.round(Number(stake || 0) * 100))} leaves your wallet when you create
-            it, and is held until the week closes.
+            {naira(Math.round(Number(stake || 0) * 100))} leaves your wallet when you create it, and
+            is held until the week closes.
           </Body>
         </View>
 
