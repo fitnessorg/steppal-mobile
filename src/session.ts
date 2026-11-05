@@ -1,5 +1,6 @@
 import { useSyncExternalStore } from 'react';
 import { api, isLive, onTokenChange, restoreSession } from './api/client';
+import { tokenStore } from './api/storage';
 import type { User } from './sdk';
 
 /**
@@ -12,9 +13,7 @@ import type { User } from './sdk';
  */
 
 export type SessionState =
-  | { status: 'loading' }
-  | { status: 'signed-out' }
-  | { status: 'signed-in'; user: User };
+  { status: 'loading' } | { status: 'signed-out' } | { status: 'signed-in'; user: User };
 
 let state: SessionState = { status: 'loading' };
 const listeners = new Set<() => void>();
@@ -30,7 +29,11 @@ function subscribe(l: () => void) {
 }
 
 export function useSession(): SessionState {
-  return useSyncExternalStore(subscribe, () => state, () => state);
+  return useSyncExternalStore(
+    subscribe,
+    () => state,
+    () => state,
+  );
 }
 
 export function currentUser(): User | null {
@@ -44,6 +47,13 @@ export function currentUser(): User | null {
  * in a local stand-in immediately — the mock screens expect a user.
  */
 export async function bootstrapSession(): Promise<SessionState> {
+  try {
+    const stored = await tokenStore().get(ONBOARDING_KEY);
+    seenOnboarding = stored === 'true';
+  } catch {
+    // If storage read fails, leave default in-memory state
+  }
+
   if (!isLive()) {
     set({ status: 'signed-in', user: DEMO_USER });
     return state;
@@ -92,12 +102,7 @@ export const DEMO_USER: User = {
 
 /* ------------------------------------------------------------- onboarding */
 
-/**
- * TODO(contributor): persist onboarding state
- * Still in memory, so it replays on every cold start. Store it next to the
- * tokens (src/api/storage.ts) and read it before the first navigation.
- * difficulty: easy
- */
+export const ONBOARDING_KEY = 'steppal.onboarding_seen';
 let seenOnboarding = false;
 
 export function hasSeenOnboarding() {
@@ -106,4 +111,11 @@ export function hasSeenOnboarding() {
 
 export function markOnboardingSeen() {
   seenOnboarding = true;
+  void tokenStore()
+    .set(ONBOARDING_KEY, 'true')
+    .catch(() => {});
+}
+
+export function resetOnboardingForTest() {
+  seenOnboarding = false;
 }
