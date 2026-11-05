@@ -4,6 +4,8 @@ import {
   hasSeenOnboarding,
   markOnboardingSeen,
   resetOnboardingForTest,
+  setSignedIn,
+  signOut,
   ONBOARDING_KEY,
   DEMO_USER,
 } from '../session';
@@ -82,14 +84,12 @@ describe('Session and Onboarding State', () => {
     markOnboardingSeen();
     expect(hasSeenOnboarding()).toBe(true);
 
-    const { signOut } = require('../session');
     await signOut();
     expect(currentUser()).toBeNull();
     expect(hasSeenOnboarding()).toBe(true);
   });
 
   it('updates session when setSignedIn is called', () => {
-    const { setSignedIn } = require('../session');
     const customUser = { ...DEMO_USER, id: 'custom-user', displayName: 'Ada' };
     setSignedIn(customUser);
     expect(currentUser()).toEqual(customUser);
