@@ -2,7 +2,15 @@ import { useEffect, useState } from 'react';
 import { Pressable, ScrollView, Text, View } from 'react-native';
 import { router } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
-import { AppHeader, Body, Card, Chips, Label, Screen, SectionHeader } from '../../src/components/ui';
+import {
+  AppHeader,
+  Body,
+  Card,
+  Chips,
+  Label,
+  Screen,
+  SectionHeader,
+} from '../../src/components/ui';
 import { usePalette } from '../../src/theme';
 import { hydratePots, usePots } from '../../src/store/pots';
 import { modeLabel, naira, type Pot } from '../../src/mock/data';
@@ -68,6 +76,37 @@ export default function Pots() {
       </View>
 
       <ScrollView contentContainerClassName="px-5 pb-8" showsVerticalScrollIndicator={false}>
+        {pots.length === 0 ? (
+          <Card className="my-5 items-center p-6">
+            <View className="mb-3 h-12 w-12 items-center justify-center rounded-full bg-surface2">
+              <Ionicons name="trophy-outline" size={24} color={C.flame} />
+            </View>
+            <Text className="font-display text-lg text-ink">No pots yet</Text>
+            <Body dim className="mt-1 text-center">
+              You have not joined or started any pots. Put a stake behind your daily walking goals
+              with friends, or join an existing pot with an invite code.
+            </Body>
+          </Card>
+        ) : null}
+
+        {pots.length > 0 && filter === 'Running' && running.length === 0 ? (
+          <Card className="my-5 items-center p-6">
+            <Text className="font-display text-base text-ink">No active pots</Text>
+            <Body dim className="mt-1 text-center">
+              You have no pots running right now. Start a new one below or check your finished pots.
+            </Body>
+          </Card>
+        ) : null}
+
+        {pots.length > 0 && filter === 'Finished' && finished.length === 0 ? (
+          <Card className="my-5 items-center p-6">
+            <Text className="font-display text-base text-ink">No finished pots</Text>
+            <Body dim className="mt-1 text-center">
+              Pots you finish will appear here with final rankings and payouts.
+            </Body>
+          </Card>
+        ) : null}
+
         {showRunning && running.length > 0 ? (
           <>
             <SectionHeader title="Running now" />
@@ -88,7 +127,10 @@ export default function Pots() {
 
         <SectionHeader title="Start something" />
         <View className="flex-row gap-3">
-          <Pressable onPress={() => router.push('/pot/create')} className="flex-1 active:opacity-80">
+          <Pressable
+            onPress={() => router.push('/pot/create')}
+            className="flex-1 active:opacity-80"
+          >
             <Card className="items-center gap-2 py-7">
               <Ionicons name="add-circle-outline" size={28} color={C.accent} />
               <Text className="font-bodyBold text-[14px] text-ink">Start a pot</Text>
