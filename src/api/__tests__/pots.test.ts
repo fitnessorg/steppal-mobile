@@ -40,6 +40,34 @@ describe('Pots API & Model Mapping', () => {
       expect(result.dayOf).toBe(3);
     });
 
+    it('handles single-day pot where startsOn equals endsOn', () => {
+      jest.useFakeTimers();
+      jest.setSystemTime(new Date('2026-06-01T12:00:00Z'));
+
+      const result = daysElapsed('2026-06-01', '2026-06-01');
+      expect(result.totalDays).toBe(1);
+      expect(result.dayOf).toBe(1);
+    });
+
+    it('handles leap year month boundary (Feb 28 to Mar 1 in 2024)', () => {
+      jest.useFakeTimers();
+      jest.setSystemTime(new Date('2024-02-29T12:00:00Z'));
+
+      // 2024 is a leap year (Feb has 29 days: Feb 28, 29, Mar 1 = 3 days)
+      const result = daysElapsed('2024-02-28', '2024-03-01');
+      expect(result.totalDays).toBe(3);
+      expect(result.dayOf).toBe(2);
+    });
+
+    it('evaluates final day correctly without overflowing', () => {
+      jest.useFakeTimers();
+      jest.setSystemTime(new Date('2026-06-07T23:59:59Z'));
+
+      const result = daysElapsed('2026-06-01', '2026-06-07');
+      expect(result.totalDays).toBe(7);
+      expect(result.dayOf).toBe(7);
+    });
+
     it('clamps dayOf to 1 when current date is before start date', () => {
       jest.useFakeTimers();
       jest.setSystemTime(new Date('2026-05-20T00:00:00Z'));
