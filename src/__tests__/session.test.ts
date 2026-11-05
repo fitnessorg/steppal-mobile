@@ -70,4 +70,28 @@ describe('Session and Onboarding State', () => {
     expect(session.status).toBe('signed-in');
     expect(currentUser()).toEqual(DEMO_USER);
   });
+
+  it('handles storage errors during bootstrap gracefully without throwing', async () => {
+    jest.spyOn(tokenStore(), 'get').mockRejectedValueOnce(new Error('Keychain corrupted'));
+
+    await expect(bootstrapSession()).resolves.toBeDefined();
+    expect(hasSeenOnboarding()).toBe(false);
+  });
+
+  it('preserves onboarding status when signing out', async () => {
+    markOnboardingSeen();
+    expect(hasSeenOnboarding()).toBe(true);
+
+    const { signOut } = require('../session');
+    await signOut();
+    expect(currentUser()).toBeNull();
+    expect(hasSeenOnboarding()).toBe(true);
+  });
+
+  it('updates session when setSignedIn is called', () => {
+    const { setSignedIn } = require('../session');
+    const customUser = { ...DEMO_USER, id: 'custom-user', displayName: 'Ada' };
+    setSignedIn(customUser);
+    expect(currentUser()).toEqual(customUser);
+  });
 });
