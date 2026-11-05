@@ -14,20 +14,15 @@ the body) so work does not collide.
 
 ## Good first issues
 
-### Persist onboarding state
+### Persist onboarding state [COMPLETED]
 **File:** `src/session.ts` · **Difficulty:** easy
 
-Onboarding replays on every cold start. Store the flag next to the tokens
-(`src/api/storage.ts` already handles keychain-or-memory) and read it before
-the first navigation, so a returning user lands on Today.
+*Status:* Resolved. Onboarding completion is persisted in `tokenStore` under `steppal.onboarding_seen` and read during `bootstrapSession()` prior to initial routing.
 
-**Done when:** a second launch skips onboarding, and a fresh install does not.
+### Persist the theme choice [COMPLETED]
+**File:** `src/components/ui.tsx`, `src/theme.ts`, `app/_layout.tsx` · **Difficulty:** easy
 
-### Persist the theme choice
-**File:** `src/components/ui.tsx` · **Difficulty:** easy
-
-`useThemeCycle` resets on restart. Store it and apply it before first paint —
-applying it after means a dark-mode user gets a white flash on every launch.
+*Status:* Resolved. User theme preference (`light`, `dark`, or `system`) is persisted via `persistTheme()` and applied in `RootLayout` before hiding the native splash screen, preventing cold-start theme flashes.
 
 ### Empty states for the live pot list
 **File:** `app/(tabs)/pots.tsx` · **Difficulty:** easy

@@ -1,4 +1,28 @@
 import { useColorScheme } from 'nativewind';
+import { tokenStore } from './api/storage';
+
+export type ThemeChoice = 'light' | 'dark' | 'system';
+export const THEME_KEY = 'steppal.theme_choice';
+
+export async function getPersistedTheme(): Promise<ThemeChoice | null> {
+  try {
+    const val = await tokenStore().get(THEME_KEY);
+    if (val === 'light' || val === 'dark' || val === 'system') {
+      return val;
+    }
+  } catch {
+    // If storage read fails, fallback to null (system default)
+  }
+  return null;
+}
+
+export async function persistTheme(choice: ThemeChoice): Promise<void> {
+  try {
+    await tokenStore().set(THEME_KEY, choice);
+  } catch {
+    // Non-fatal if storage write fails
+  }
+}
 
 /**
  * Raw palette values, mirrored from global.css.

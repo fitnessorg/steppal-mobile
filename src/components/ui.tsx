@@ -2,7 +2,7 @@ import { Image, Pressable, ScrollView, Text, View, type ViewProps } from 'react-
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useColorScheme } from 'nativewind';
 import { Ionicons } from '@expo/vector-icons';
-import { usePalette } from '../theme';
+import { persistTheme, usePalette } from '../theme';
 
 /* ------------------------------------------------------------------ Screen */
 
@@ -133,9 +133,7 @@ export function Chips<T extends string>({
               on ? 'border-accent bg-accent' : 'border-surface2 bg-transparent'
             }`}
           >
-            <Text
-              className={`font-bodyMed text-[13px] ${on ? 'text-accentInk' : 'text-inkSoft'}`}
-            >
+            <Text className={`font-bodyMed text-[13px] ${on ? 'text-accentInk' : 'text-inkSoft'}`}>
               {o}
             </Text>
           </Pressable>
@@ -257,16 +255,23 @@ export function Divider() {
 /**
  * Three states, matching how the OS works. A two-way switch strands anyone who
  * wants to go back to following their phone.
- *
- * TODO(contributor): persist the choice
- * Resets on restart. Store it and apply before first paint.
- * difficulty: easy
  */
 export function useThemeCycle() {
   const { colorScheme, setColorScheme } = useColorScheme();
   const next = { light: 'dark', dark: 'system', system: 'light' } as const;
   const current = (colorScheme ?? 'system') as keyof typeof next;
   const icon: keyof typeof Ionicons.glyphMap =
-    current === 'light' ? 'sunny-outline' : current === 'dark' ? 'moon-outline' : 'contrast-outline';
-  return { icon, cycle: () => setColorScheme(next[current]) };
+    current === 'light'
+      ? 'sunny-outline'
+      : current === 'dark'
+        ? 'moon-outline'
+        : 'contrast-outline';
+
+  const cycle = () => {
+    const nextTheme = next[current];
+    setColorScheme(nextTheme);
+    void persistTheme(nextTheme);
+  };
+
+  return { icon, cycle };
 }
