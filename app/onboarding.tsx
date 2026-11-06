@@ -5,7 +5,7 @@ import { Ionicons } from '@expo/vector-icons';
 import { Body, Button, Card, Label, Screen } from '../src/components/ui';
 import { usePalette } from '../src/theme';
 import { markOnboardingSeen } from '../src/session';
-import { getStepSource } from '../src/health';
+import { getStepSource, openHealthConnectPlayStore } from '../src/health';
 
 const GOALS = [6_000, 8_000, 10_000, 12_000, 15_000];
 
@@ -14,12 +14,6 @@ const GOALS = [6_000, 8_000, 10_000, 12_000, 15_000];
  *
  * Three steps, no account. The health permission step is the one that matters —
  * people need to know the number is read for them, not logged by them.
- *
- * TODO(contributor): request the real Health Connect permission
- * Step 2 fakes the grant. Wire react-native-health-connect: check
- * availability, request read permission for Steps, handle denial and the
- * "Health Connect not installed" case with a Play Store link.
- * difficulty: hard
  */
 export default function Onboarding() {
   const C = usePalette();
@@ -49,7 +43,16 @@ export default function Onboarding() {
       if (status === 'not_installed') {
         return Alert.alert(
           'Health Connect needed',
-          'Install Health Connect from the Play Store, then come back.',
+          'Health Connect is not installed on your phone. Would you like to get it from Google Play?',
+          [
+            { text: 'Later', style: 'cancel' },
+            {
+              text: 'Install',
+              onPress: () => {
+                void openHealthConnectPlayStore();
+              },
+            },
+          ],
         );
       }
       if (status === 'unsupported') {
@@ -59,7 +62,14 @@ export default function Onboarding() {
           'This phone has no Health Connect. StepPal will count steps live while the app is open.',
         );
       }
-      setGranted(await source.requestPermission());
+      const ok = await source.requestPermission();
+      setGranted(ok);
+      if (!ok) {
+        Alert.alert(
+          'Permission not granted',
+          'StepPal needs read access to your steps. You can grant access anytime from the You tab.',
+        );
+      }
     } catch {
       setGranted(true);
       Alert.alert(
