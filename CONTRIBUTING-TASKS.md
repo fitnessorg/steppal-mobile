@@ -88,16 +88,11 @@ only has to reflect them.
 
 ## Health and platform
 
-### Finish the Health Connect permission flow
+### Finish the Health Connect permission flow [COMPLETED]
 
-**File:** `app/onboarding.tsx`, `src/health/healthConnect.ts` · **Difficulty:** hard
+**File:** `app/onboarding.tsx`, `app/(tabs)/profile.tsx`, `src/health/healthConnect.ts` · **Difficulty:** hard
 
-Permission is requested and failures are handled, but the "Health Connect is
-not installed" case only shows an alert. Add a Play Store deep link, and a way
-back into the flow from the You tab for someone who declined.
-
-**Done when:** a device with no Health Connect gets a working route to install
-it, and a declined permission can be granted later without reinstalling.
+_Status:_ Resolved. Devices missing Health Connect receive direct Google Play Store deep links (with web fallback), and users who declined permission can inspect health connection status and grant permission or open settings directly from the Profile (You) tab.
 
 ### iOS support
 
