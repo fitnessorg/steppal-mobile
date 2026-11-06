@@ -1,6 +1,8 @@
+import { Linking } from 'react-native';
 import {
   initialize,
   getSdkStatus,
+  getGrantedPermissions,
   requestPermission,
   readRecords,
   SdkAvailabilityStatus,
@@ -8,6 +10,44 @@ import {
 import { toDayKey, type DailySteps, type HealthStatus, type StepSource } from './types';
 
 const PERMISSIONS = [{ accessType: 'read' as const, recordType: 'Steps' as const }];
+
+export const HEALTH_CONNECT_PACKAGE = 'com.google.android.apps.healthdata';
+export const PLAY_STORE_MARKET_URI = `market://details?id=${HEALTH_CONNECT_PACKAGE}`;
+export const PLAY_STORE_WEB_URL = `https://play.google.com/store/apps/details?id=${HEALTH_CONNECT_PACKAGE}`;
+
+/**
+ * Directs the user to Google Play Store to install or update Health Connect.
+ * Tries the native market:// URI first and gracefully falls back to the web URL.
+ */
+export async function openHealthConnectPlayStore(): Promise<void> {
+  try {
+    const supported = await Linking.canOpenURL(PLAY_STORE_MARKET_URI);
+    if (supported) {
+      await Linking.openURL(PLAY_STORE_MARKET_URI);
+      return;
+    }
+  } catch {
+    // If market uri check fails on emulator or restricted device, fall back to browser.
+  }
+  await Linking.openURL(PLAY_STORE_WEB_URL);
+}
+
+/**
+ * Attempts to open the system Health Connect settings screen.
+ */
+export async function openHealthConnectSettingsSafe(): Promise<boolean> {
+  try {
+    // eslint-disable-next-line @typescript-eslint/no-require-imports
+    const hc = require('react-native-health-connect');
+    if (typeof hc.openHealthConnectSettings === 'function') {
+      hc.openHealthConnectSettings();
+      return true;
+    }
+  } catch {
+    // Settings launch unavailable
+  }
+  return false;
+}
 
 /**
  * Reads daily step totals from Android Health Connect.
@@ -31,6 +71,16 @@ export const HealthConnectStepSource: StepSource = {
       return ok ? 'ready' : 'unknown';
     } catch {
       return 'unknown';
+    }
+  },
+
+  async checkPermission(): Promise<boolean> {
+    try {
+      await initialize();
+      const granted = await getGrantedPermissions();
+      return granted.some((p) => p.recordType === 'Steps' && p.accessType === 'read');
+    } catch {
+      return false;
     }
   },
 

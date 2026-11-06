@@ -21,6 +21,8 @@ export interface StepSource {
   readonly name: string;
   /** Is the underlying store present and usable on this device? */
   status(): Promise<HealthStatus>;
+  /** Check if read permission is currently granted without showing a prompt. */
+  checkPermission?(): Promise<boolean>;
   /** Ask the user. Returns true only if read access to Steps was granted. */
   requestPermission(): Promise<boolean>;
   /** Inclusive day range, local time. */

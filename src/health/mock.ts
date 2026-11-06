@@ -13,6 +13,10 @@ export const MockStepSource: StepSource = {
     return 'ready';
   },
 
+  async checkPermission(): Promise<boolean> {
+    return true;
+  },
+
   async requestPermission() {
     return true;
   },
