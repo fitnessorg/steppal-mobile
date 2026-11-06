@@ -4,6 +4,7 @@ import type { StepSource } from './types';
 
 export * from './types';
 export { startLiveCount, getLiveCount, resetLiveCount } from './pedometer';
+export { openHealthConnectPlayStore, openHealthConnectSettingsSafe } from './healthConnect';
 
 /**
  * Picks the best step source this build can actually run, in order:

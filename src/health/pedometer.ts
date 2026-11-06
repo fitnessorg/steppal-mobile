@@ -54,6 +54,15 @@ export const PedometerStepSource: StepSource = {
     }
   },
 
+  async checkPermission(): Promise<boolean> {
+    try {
+      const { granted } = await Pedometer.getPermissionsAsync();
+      return granted;
+    } catch {
+      return false;
+    }
+  },
+
   async requestPermission(): Promise<boolean> {
     const { granted } = await Pedometer.requestPermissionsAsync();
     return granted;

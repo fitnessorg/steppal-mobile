@@ -1,3 +1,4 @@
+import { useCallback, useEffect, useState } from 'react';
 import { Alert, Linking, Pressable, ScrollView, Text, View } from 'react-native';
 import { router } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
@@ -17,6 +18,13 @@ import { usePalette } from '../../src/theme';
 import { stats, steps, user } from '../../src/mock/data';
 import { isLive } from '../../src/api/client';
 import { signOut, useSession } from '../../src/session';
+import {
+  getStepSource,
+  sourceLabel,
+  openHealthConnectPlayStore,
+  openHealthConnectSettingsSafe,
+  type HealthStatus,
+} from '../../src/health';
 
 const STATS: [string, string][] = [
   ['Pots played', String(stats.potsPlayed)],
@@ -29,6 +37,61 @@ export default function Profile() {
   const session = useSession();
   const C = usePalette();
   const theme = useThemeCycle();
+  const source = getStepSource();
+
+  const [healthStatus, setHealthStatus] = useState<HealthStatus | 'loading'>('loading');
+  const [hasPermission, setHasPermission] = useState<boolean | null>(null);
+
+  const refreshHealth = useCallback(async () => {
+    try {
+      const s = await source.status();
+      setHealthStatus(s);
+      if (source.checkPermission) {
+        const ok = await source.checkPermission();
+        setHasPermission(ok);
+      } else {
+        setHasPermission(true);
+      }
+    } catch {
+      setHealthStatus('unknown');
+    }
+  }, [source]);
+
+  useEffect(() => {
+    let active = true;
+    void Promise.resolve().then(() => {
+      if (active) void refreshHealth();
+    });
+    return () => {
+      active = false;
+    };
+  }, [refreshHealth]);
+
+  const requestPermission = async () => {
+    try {
+      const ok = await source.requestPermission();
+      setHasPermission(ok);
+      if (ok) {
+        Alert.alert('Permission granted', 'StepPal can now read your steps in the background.');
+      } else {
+        Alert.alert(
+          'Permission denied',
+          'Read access to steps was not granted. You can grant access from Health Connect settings.',
+          [
+            { text: 'Cancel', style: 'cancel' },
+            {
+              text: 'Open settings',
+              onPress: () => {
+                void openHealthConnectSettingsSafe();
+              },
+            },
+          ],
+        );
+      }
+    } catch {
+      Alert.alert('Unable to request permission', 'Please check your Health Connect settings.');
+    }
+  };
 
   return (
     <Screen>
@@ -80,14 +143,101 @@ export default function Profile() {
 
         <SectionHeader title="Steps come from" />
         <Card>
-          <View className="flex-row items-center gap-3">
-            <Ionicons name="heart-circle-outline" size={22} color={C.accent} />
-            <Text className="font-bodyMed text-[15px] text-ink">Health Connect</Text>
+          <View className="flex-row items-center justify-between">
+            <View className="flex-row items-center gap-3">
+              <Ionicons
+                name={source.name === 'health_connect' ? 'heart-circle-outline' : 'footsteps-outline'}
+                size={22}
+                color={C.accent}
+              />
+              <Text className="font-bodyMed text-[15px] text-ink">{sourceLabel()}</Text>
+            </View>
+            {source.name === 'health_connect' ? (
+              <Label
+                tone={
+                  hasPermission
+                    ? 'accent'
+                    : healthStatus === 'not_installed' || hasPermission === false
+                      ? 'flame'
+                      : undefined
+                }
+              >
+                {hasPermission
+                  ? 'Connected'
+                  : healthStatus === 'not_installed'
+                    ? 'Not installed'
+                    : hasPermission === false
+                      ? 'Permission needed'
+                      : 'Checking...'}
+              </Label>
+            ) : null}
           </View>
-          <Body dim className="mt-2">
-            Demo build — steps are sample data. The real app reads your phone&apos;s health store
-            directly, with nothing to log by hand.
-          </Body>
+
+          {source.name === 'mock' ? (
+            <Body dim className="mt-2">
+              Demo build — steps are sample data. Install the development build on an Android phone to
+              read real step history.
+            </Body>
+          ) : source.name === 'pedometer' ? (
+            <Body dim className="mt-2">
+              Using hardware pedometer. Counting steps live while StepPal is running.
+            </Body>
+          ) : (
+            <View className="mt-2">
+              {healthStatus === 'not_installed' ? (
+                <>
+                  <Body dim>
+                    Health Connect is not installed on this device. Install it from Google Play to
+                    enable background step tracking.
+                  </Body>
+                  <View className="mt-4">
+                    <Button
+                      label="Install from Google Play"
+                      tone="accent"
+                      icon="download-outline"
+                      onPress={() => void openHealthConnectPlayStore()}
+                    />
+                  </View>
+                </>
+              ) : hasPermission === false ? (
+                <>
+                  <Body dim>
+                    StepPal needs read permission for Steps to score pots. Permission was declined.
+                  </Body>
+                  <View className="mt-4 flex-row gap-3">
+                    <View className="flex-1">
+                      <Button
+                        label="Grant permission"
+                        tone="accent"
+                        onPress={() => void requestPermission()}
+                      />
+                    </View>
+                    <View className="flex-1">
+                      <Button
+                        label="Settings"
+                        tone="ghost"
+                        onPress={() => void openHealthConnectSettingsSafe()}
+                      />
+                    </View>
+                  </View>
+                </>
+              ) : (
+                <>
+                  <Body dim>
+                    7-day step history synced directly from Android Health Connect.
+                  </Body>
+                  <Pressable
+                    onPress={() => void openHealthConnectSettingsSafe()}
+                    className="mt-3 flex-row items-center gap-1 active:opacity-60"
+                  >
+                    <Text className="font-bodyMed text-[13px] text-accent">
+                      Manage permissions in Health Connect ↗
+                    </Text>
+                  </Pressable>
+                </>
+              )}
+            </View>
+          )}
         </Card>
 
         {session.status === 'signed-in' && isLive() ? (
