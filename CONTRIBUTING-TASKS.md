@@ -36,18 +36,11 @@ _Status:_ Resolved. Configured helpful empty state callout in `app/(tabs)/pots.t
 
 ## Wiring the app to the server
 
-### Queue failed step uploads
+### Queue failed step uploads [COMPLETED]
 
 **File:** `app/(tabs)/home.tsx`, `src/api/steps.ts` · **Difficulty:** medium
 
-Steps sync on foreground. A failed upload is retried on the _next_ foreground,
-which on a bad connection can be hours. Queue them and flush on reconnect.
-
-The endpoint is idempotent on `(user, day)`, so replaying a queue is safe by
-construction — a duplicate flush changes nothing.
-
-**Done when:** steps recorded offline arrive after reconnection, with no
-double-counting.
+_Status:_ Resolved. Failed step submissions are saved in persistent storage (`steppal.offline_steps_queue`) and deduplicated on `(user, day)`. The queue automatically flushes and retries upon reconnection, app foreground (`AppState`), and manual sync, guaranteeing no lost steps and no double-counting.
 
 ### Pot chat needs a server
 
