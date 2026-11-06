@@ -22,7 +22,7 @@ import {
 } from '../../src/health';
 import { naira, steps, user, week } from '../../src/mock/data';
 import { useActivePot } from '../../src/store/pots';
-import { syncSteps } from '../../src/api/steps';
+import { getPendingStepQueue, syncSteps } from '../../src/api/steps';
 
 const source = getStepSource();
 
@@ -50,7 +50,12 @@ export default function Home() {
       // even when the server is unreachable — a failed upload is the server's
       // problem, not a reason to show a blank ring.
       const uploaded = await syncSteps();
-      setSynced(uploaded.status === 'failed' ? 'saved on device' : 'just now');
+      if (uploaded.status === 'failed') {
+        const queue = await getPendingStepQueue();
+        setSynced(queue.length > 0 ? `${queue.length}d queued offline` : 'saved on device');
+      } else {
+        setSynced('just now');
+      }
     } catch {
       setSynced('failed');
     } finally {
@@ -69,6 +74,18 @@ export default function Home() {
   }, [sync]);
 
   /**
+   * Periodically retry syncing while the queue has pending offline steps or
+   * is in a disconnected state.
+   */
+  useEffect(() => {
+    if (synced === 'just now' || synced === 'never') return;
+    const timer = setTimeout(() => {
+      void sync();
+    }, 25000);
+    return () => clearTimeout(timer);
+  }, [synced, sync]);
+
+  /**
    * The pedometer only counts while something is subscribed, so start it on
    * mount and let it run for the life of the screen. Health Connect ignores
    * this — it reads history instead.
@@ -85,10 +102,8 @@ export default function Home() {
    * pocket and the app suspended, so the interesting number is always the one
    * that accumulated while nothing was watching.
    *
-   * TODO(contributor): queue a failed upload instead of waiting for the next
-   * foreground. The endpoint is idempotent on (user, day), so a replayed queue
-   * is safe by construction — see packages/sdk in steppal-core.
-   * difficulty: medium
+   * Replaying queued failed uploads is idempotent on (user, day), guaranteeing
+   * safe offline recovery with no double-counting.
    */
   useEffect(() => {
     const subscription = AppState.addEventListener('change', (next) => {
