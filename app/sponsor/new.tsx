@@ -96,9 +96,7 @@ export default function SponsorFriend() {
                     {f.slice(0, 1)}
                   </Text>
                 </View>
-                <Text
-                  className={`font-bodyBold text-[13px] ${on ? 'text-white' : 'text-inkSoft'}`}
-                >
+                <Text className={`font-bodyBold text-[13px] ${on ? 'text-white' : 'text-inkSoft'}`}>
                   {f}
                 </Text>
               </Pressable>
@@ -140,9 +138,7 @@ export default function SponsorFriend() {
                   on ? 'border-money bg-money' : 'border-surface2'
                 }`}
               >
-                <Text
-                  className={`font-bodyBold text-[13px] ${on ? 'text-white' : 'text-inkSoft'}`}
-                >
+                <Text className={`font-bodyBold text-[13px] ${on ? 'text-white' : 'text-inkSoft'}`}>
                   ₦{a.toLocaleString('en-NG')}
                 </Text>
               </Pressable>
@@ -168,7 +164,10 @@ export default function SponsorFriend() {
           <Label>What happens to the money</Label>
           <View className="mt-3 gap-3">
             {[
-              ['lock-closed', `${naira(Math.round(Number(amount || 0) * 100))} is locked in escrow now`],
+              [
+                'lock-closed',
+                `${naira(Math.round(Number(amount || 0) * 100))} is locked in escrow now`,
+              ],
               ['walk', `${friend || 'They'} walk. Steps come from their phone.`],
               ['checkmark-circle', 'Goal hit: the money is released to them'],
               ['arrow-undo', 'Goal missed: you take it back in full'],

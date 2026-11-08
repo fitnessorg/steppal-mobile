@@ -3,6 +3,7 @@ import {
   KeyboardAvoidingView,
   Platform,
   Pressable,
+  RefreshControl,
   ScrollView,
   Share,
   Text,
@@ -56,6 +57,17 @@ export default function PotDetail() {
 
   const [tab, setTab] = useState<Tab>('Leaderboard');
   const [draft, setDraft] = useState('');
+  const [refreshing, setRefreshing] = useState(false);
+
+  const onRefresh = async () => {
+    if (!id) return;
+    setRefreshing(true);
+    try {
+      await hydratePot(id);
+    } finally {
+      setRefreshing(false);
+    }
+  };
 
   const share = () => {
     if (!pot) return;
@@ -142,7 +154,18 @@ export default function PotDetail() {
       </View>
 
       {tab === 'Leaderboard' ? (
-        <ScrollView contentContainerClassName="px-5 pb-8" showsVerticalScrollIndicator={false}>
+        <ScrollView
+          contentContainerClassName="px-5 pb-8"
+          showsVerticalScrollIndicator={false}
+          refreshControl={
+            <RefreshControl
+              refreshing={refreshing}
+              onRefresh={onRefresh}
+              tintColor={C.accent}
+              colors={[C.accent]}
+            />
+          }
+        >
           {/* Fresh pot: the invite code is the whole job, so it goes first. */}
           {alone && !settled ? (
             <Pressable onPress={share} className="mt-5 active:opacity-80">

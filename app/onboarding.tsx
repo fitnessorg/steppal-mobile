@@ -108,8 +108,8 @@ export default function Onboarding() {
               Put money on your step goal.
             </Text>
             <Body dim className="mt-4">
-              Form a pot with friends. Everyone stakes the same amount. At the end of the
-              week it settles itself — no treasurer, no chasing anyone.
+              Form a pot with friends. Everyone stakes the same amount. At the end of the week it
+              settles itself — no treasurer, no chasing anyone.
             </Body>
 
             <View className="mt-8 gap-3">
@@ -139,9 +139,8 @@ export default function Onboarding() {
               Your steps come from your phone.
             </Text>
             <Body dim className="mt-4">
-              StepPal reads your daily step count from Health Connect. Nothing to log by
-              hand, and nothing to remember. We only ever read steps — never location,
-              never anything else.
+              StepPal reads your daily step count from Health Connect. Nothing to log by hand, and
+              nothing to remember. We only ever read steps — never location, never anything else.
             </Body>
 
             <Pressable onPress={link} className="mt-8 active:opacity-80">
@@ -165,8 +164,8 @@ export default function Onboarding() {
             </Pressable>
 
             <Body dim className="mt-4">
-              Demo build uses sample data. With a dev build containing
-              react-native-health-connect, this asks for real permission.
+              Demo build uses sample data. With a dev build containing react-native-health-connect,
+              this asks for real permission.
             </Body>
           </View>
         ) : null}
@@ -178,8 +177,8 @@ export default function Onboarding() {
               Pick a daily goal.
             </Text>
             <Body dim className="mt-4">
-              Hit it every day and you keep your stake. Miss a day and a slice goes to
-              the pot. Pick something you can actually do on a bad day.
+              Hit it every day and you keep your stake. Miss a day and a slice goes to the pot. Pick
+              something you can actually do on a bad day.
             </Body>
 
             <View className="mt-8 gap-3">

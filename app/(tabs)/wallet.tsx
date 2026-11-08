@@ -28,7 +28,9 @@ export default function Wallet() {
     <Screen>
       <AppHeader
         title="Wallet"
-        actions={[{ icon: 'help-circle-outline', label: 'How the wallet works', onPress: notWired }]}
+        actions={[
+          { icon: 'help-circle-outline', label: 'How the wallet works', onPress: notWired },
+        ]}
       />
 
       <ScrollView contentContainerClassName="px-5 pb-8" showsVerticalScrollIndicator={false}>

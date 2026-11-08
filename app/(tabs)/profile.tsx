@@ -146,7 +146,9 @@ export default function Profile() {
           <View className="flex-row items-center justify-between">
             <View className="flex-row items-center gap-3">
               <Ionicons
-                name={source.name === 'health_connect' ? 'heart-circle-outline' : 'footsteps-outline'}
+                name={
+                  source.name === 'health_connect' ? 'heart-circle-outline' : 'footsteps-outline'
+                }
                 size={22}
                 color={C.accent}
               />
@@ -175,8 +177,8 @@ export default function Profile() {
 
           {source.name === 'mock' ? (
             <Body dim className="mt-2">
-              Demo build — steps are sample data. Install the development build on an Android phone to
-              read real step history.
+              Demo build — steps are sample data. Install the development build on an Android phone
+              to read real step history.
             </Body>
           ) : source.name === 'pedometer' ? (
             <Body dim className="mt-2">
@@ -223,9 +225,7 @@ export default function Profile() {
                 </>
               ) : (
                 <>
-                  <Body dim>
-                    7-day step history synced directly from Android Health Connect.
-                  </Body>
+                  <Body dim>7-day step history synced directly from Android Health Connect.</Body>
                   <Pressable
                     onPress={() => void openHealthConnectSettingsSafe()}
                     className="mt-3 flex-row items-center gap-1 active:opacity-60"

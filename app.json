@@ -13,9 +13,7 @@
     },
     "android": {
       "package": "app.steppal.mobile",
-      "permissions": [
-        "android.permission.health.READ_STEPS"
-      ],
+      "permissions": ["android.permission.health.READ_STEPS"],
       "adaptiveIcon": {
         "backgroundColor": "#FF4A1C",
         "foregroundImage": "./assets/android-icon-foreground.png",

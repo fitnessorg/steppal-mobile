@@ -12,7 +12,10 @@ import { currentUser } from '../session';
  * the mapping fills them here and the screens stay untouched.
  */
 
-export function daysElapsed(startsOn: string, endsOn: string): { dayOf: number; totalDays: number } {
+export function daysElapsed(
+  startsOn: string,
+  endsOn: string,
+): { dayOf: number; totalDays: number } {
   const start = new Date(`${startsOn}T00:00:00`);
   const end = new Date(`${endsOn}T00:00:00`);
   const day = 24 * 60 * 60 * 1000;

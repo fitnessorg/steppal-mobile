@@ -6,11 +6,7 @@ export type DailySteps = {
 };
 
 export type HealthStatus =
-  | 'ready'
-  | 'not_installed'
-  | 'unsupported'
-  | 'permission_denied'
-  | 'unknown';
+  'ready' | 'not_installed' | 'unsupported' | 'permission_denied' | 'unknown';
 
 /**
  * Every step source implements this. The app never imports a health library

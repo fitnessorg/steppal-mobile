@@ -58,7 +58,10 @@ export default function Feed() {
 
         {/* ---- two ways in ---- */}
         <View className="mt-5 flex-row gap-3">
-          <Pressable onPress={() => router.push('/pledge/new')} className="flex-1 active:opacity-80">
+          <Pressable
+            onPress={() => router.push('/pledge/new')}
+            className="flex-1 active:opacity-80"
+          >
             <Card className="items-center gap-2 py-7">
               <Ionicons name="megaphone-outline" size={26} color={C.accent} />
               <Text className="font-bodyBold text-[14px] text-ink">Post a pledge</Text>
@@ -68,7 +71,10 @@ export default function Feed() {
             </Card>
           </Pressable>
 
-          <Pressable onPress={() => router.push('/sponsor/new')} className="flex-1 active:opacity-80">
+          <Pressable
+            onPress={() => router.push('/sponsor/new')}
+            className="flex-1 active:opacity-80"
+          >
             <Card className="items-center gap-2 py-7">
               <Ionicons name="gift-outline" size={26} color={C.flame} />
               <Text className="font-bodyBold text-[14px] text-ink">Sponsor a friend</Text>

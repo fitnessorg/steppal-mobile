@@ -41,9 +41,7 @@ describe('Token Storage', () => {
     const store = tokenStore();
 
     expect(store.persistent).toBe(false);
-    expect(warnSpy).toHaveBeenCalledWith(
-      expect.stringContaining('expo-secure-store unavailable')
-    );
+    expect(warnSpy).toHaveBeenCalledWith(expect.stringContaining('expo-secure-store unavailable'));
 
     // Initial get returns null
     expect(await store.get('token')).toBeNull();
