@@ -111,18 +111,8 @@ _Status:_ Resolved. Tapping "Run it back" routes to `app/pot/create.tsx` prefill
 
 ## Testing
 
-### There are no tests
+### There are no tests [COMPLETED]
 
 **Difficulty:** medium
 
-steppal-core has 43. This repo has none. Start with the parts where a bug is
-silent rather than loud:
-
-- `src/api/pots.ts` — the mapping from server pot to screen pot, especially
-  `daysElapsed` around month boundaries and the final day.
-- `src/store/pots.ts` — that live mode and demo mode produce the same shapes.
-- `src/health/index.ts` — that a missing native module falls back rather than
-  throwing.
-
-Use `jest-expo` and React Native Testing Library. Snapshot tests of screens are
-not what is needed here; the logic is.
+_Status:_ Resolved. Configured `jest-expo` test harness and authored 13 unit test suites (92 tests) covering `src/api/pots.ts` (including boundary date calculations), `src/store/pots.ts` (demo/live shape parity and actions), `src/api/steps.ts` (persistent offline step queue and deduplication), `src/health/` (Health Connect recovery, Pedometer, Mock, and graceful native fallback), `src/api/client.ts`, `src/api/storage.ts`, `src/store/feed.ts`, `src/session.ts`, and `src/theme.ts`.
