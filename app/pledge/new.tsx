@@ -53,8 +53,8 @@ export default function NewPledge() {
       <ScrollView contentContainerClassName="px-5 pb-10" showsVerticalScrollIndicator={false}>
         <Text className="font-displayBlack text-[30px] leading-9 text-ink">Post a pledge</Text>
         <Body dim className="mt-2">
-          Say what you will do. People who want you to do it can put money behind it. Hit the
-          goal and it is yours.
+          Say what you will do. People who want you to do it can put money behind it. Hit the goal
+          and it is yours.
         </Body>
 
         <SectionHeader title="The promise" />
@@ -103,8 +103,8 @@ export default function NewPledge() {
           <View className="flex-row items-start gap-3">
             <Ionicons name="information-circle-outline" size={18} color={C.inkSoft} />
             <Body dim className="flex-1">
-              Tips are held by the contract, not by StepPal. Miss the goal and every backer
-              takes their own money back — nobody loses anything but you.
+              Tips are held by the contract, not by StepPal. Miss the goal and every backer takes
+              their own money back — nobody loses anything but you.
             </Body>
           </View>
         </Card>

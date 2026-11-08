@@ -25,9 +25,7 @@ export function Segmented<T extends string>({
             accessibilityState={{ selected: on }}
             className={`flex-1 items-center rounded-full py-2.5 ${on ? 'bg-surface2' : ''}`}
           >
-            <Text
-              className={`font-bodyBold text-[13px] ${on ? 'text-ink' : 'text-inkFaint'}`}
-            >
+            <Text className={`font-bodyBold text-[13px] ${on ? 'text-ink' : 'text-inkFaint'}`}>
               {o}
             </Text>
           </Pressable>

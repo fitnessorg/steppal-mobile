@@ -106,13 +106,8 @@ export function tip(id: string, amountKobo: number) {
 
     const mine = p.funders.find((f) => f.isYou);
     const funders = mine
-      ? p.funders.map((f) =>
-          f.isYou ? { ...f, amountKobo: f.amountKobo + amountKobo } : f,
-        )
-      : [
-          ...p.funders,
-          { id: `me-${Date.now()}`, name: 'You', amountKobo, isYou: true as const },
-        ];
+      ? p.funders.map((f) => (f.isYou ? { ...f, amountKobo: f.amountKobo + amountKobo } : f))
+      : [...p.funders, { id: `me-${Date.now()}`, name: 'You', amountKobo, isYou: true as const }];
 
     return { ...p, funders, potKobo: p.potKobo + amountKobo };
   });

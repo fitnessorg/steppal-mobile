@@ -1,9 +1,7 @@
 jest.mock('react', () => ({
   ...jest.requireActual('react'),
-  useSyncExternalStore: (
-    _subscribe: (cb: () => void) => () => void,
-    getSnapshot: () => unknown,
-  ) => getSnapshot(),
+  useSyncExternalStore: (_subscribe: (cb: () => void) => () => void, getSnapshot: () => unknown) =>
+    getSnapshot(),
 }));
 
 describe('src/store/feed', () => {

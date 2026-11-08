@@ -113,7 +113,11 @@ export default function PledgeDetail() {
 
         <Card className="mt-6">
           <Label tone={done ? 'accent' : 'flame'}>
-            {done ? 'Goal met' : pledge.status === 'attested' ? 'Awaiting attestation' : pledge.deadline}
+            {done
+              ? 'Goal met'
+              : pledge.status === 'attested'
+                ? 'Awaiting attestation'
+                : pledge.deadline}
           </Label>
           <Text className="mt-2 font-displayBlack text-[38px] leading-[42px] text-ink">
             {steps(pledge.currentSteps)}
@@ -186,7 +190,11 @@ export default function PledgeDetail() {
             />
 
             <View className="mt-4 gap-2">
-              <Button label={`Send ${naira(Math.round(Number(amount || 0) * 100))}`} icon="arrow-forward" onPress={send} />
+              <Button
+                label={`Send ${naira(Math.round(Number(amount || 0) * 100))}`}
+                icon="arrow-forward"
+                onPress={send}
+              />
               <Button label="Cancel" tone="ghost" onPress={() => setTipping(false)} />
             </View>
           </Card>

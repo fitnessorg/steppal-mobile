@@ -1,9 +1,4 @@
-import {
-  PedometerStepSource,
-  getLiveCount,
-  resetLiveCount,
-  startLiveCount,
-} from '../pedometer';
+import { PedometerStepSource, getLiveCount, resetLiveCount, startLiveCount } from '../pedometer';
 import { toDayKey } from '../types';
 
 const mockIsAvailableAsync = jest.fn();

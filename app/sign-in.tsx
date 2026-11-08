@@ -110,9 +110,7 @@ export default function SignIn() {
           />
         )}
 
-        {error ? (
-          <Text className="mt-3 font-bodyMed text-[13px] text-flame">{error}</Text>
-        ) : null}
+        {error ? <Text className="mt-3 font-bodyMed text-[13px] text-flame">{error}</Text> : null}
 
         <View className="mt-6">
           {busy ? (

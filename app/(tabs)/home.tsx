@@ -14,12 +14,7 @@ import {
   useThemeCycle,
 } from '../../src/components/ui';
 import { usePalette } from '../../src/theme';
-import {
-  getStepSource,
-  sourceLabel,
-  startLiveCount,
-  type DailySteps,
-} from '../../src/health';
+import { getStepSource, sourceLabel, startLiveCount, type DailySteps } from '../../src/health';
 import { naira, steps, user, week } from '../../src/mock/data';
 import { useActivePot } from '../../src/store/pots';
 import { getPendingStepQueue, syncSteps } from '../../src/api/steps';

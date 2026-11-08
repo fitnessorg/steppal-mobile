@@ -32,15 +32,15 @@ synchronous.
 
 ## What works today
 
-| | Demo | Live |
-| --- | --- | --- |
-| Today, step ring, week grid | mock steps | Health Connect or pedometer, synced to the server |
-| Phone sign-in with a six-digit code | skipped | yes |
-| Create a pot, invite code, join by code | local | server, shared with friends |
-| Pot standings | mock | real, from everyone's submitted steps |
-| Pot chat | local to this device | local to this device — no server yet |
-| Feed, pledges, tipping, sponsored goals | mock | mock — not wired to the contract yet |
-| Wallet | mock | mock — no payment provider yet |
+|                                         | Demo                 | Live                                              |
+| --------------------------------------- | -------------------- | ------------------------------------------------- |
+| Today, step ring, week grid             | mock steps           | Health Connect or pedometer, synced to the server |
+| Phone sign-in with a six-digit code     | skipped              | yes                                               |
+| Create a pot, invite code, join by code | local                | server, shared with friends                       |
+| Pot standings                           | mock                 | real, from everyone's submitted steps             |
+| Pot chat                                | local to this device | local to this device — no server yet              |
+| Feed, pledges, tipping, sponsored goals | mock                 | mock — not wired to the contract yet              |
+| Wallet                                  | mock                 | mock — no payment provider yet                    |
 
 Stakes are **zero** everywhere. The money-free version ships first: it proves
 whether people walk more when their friends are watching, which has to be true

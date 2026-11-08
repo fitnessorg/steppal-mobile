@@ -118,8 +118,8 @@ export default function JoinPot() {
               <View className="mt-5 flex-row items-start gap-2">
                 <Ionicons name="lock-closed" size={14} color={C.money} />
                 <Body dim className="flex-1">
-                  {naira(found.stakeKobo)} leaves your wallet and is held by the contract
-                  until the week closes.
+                  {naira(found.stakeKobo)} leaves your wallet and is held by the contract until the
+                  week closes.
                 </Body>
               </View>
             </Card>

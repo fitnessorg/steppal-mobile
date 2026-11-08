@@ -64,7 +64,9 @@ describe('Health Connect Service & Navigation', () => {
     });
 
     it('falls back to web URL when canOpenURL throws', async () => {
-      const canOpenSpy = jest.spyOn(Linking, 'canOpenURL').mockRejectedValue(new Error('ActivityNotFound'));
+      const canOpenSpy = jest
+        .spyOn(Linking, 'canOpenURL')
+        .mockRejectedValue(new Error('ActivityNotFound'));
       const openSpy = jest.spyOn(Linking, 'openURL').mockResolvedValue(true);
 
       await openHealthConnectPlayStore();
@@ -93,7 +95,7 @@ describe('Health Connect Service & Navigation', () => {
 
     it('reports not_installed when provider update is required', async () => {
       (getSdkStatus as jest.Mock).mockResolvedValue(
-        SdkAvailabilityStatus.SDK_UNAVAILABLE_PROVIDER_UPDATE_REQUIRED
+        SdkAvailabilityStatus.SDK_UNAVAILABLE_PROVIDER_UPDATE_REQUIRED,
       );
       const status = await HealthConnectStepSource.status();
       expect(status).toBe('not_installed');
