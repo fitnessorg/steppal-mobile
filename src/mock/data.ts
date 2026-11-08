@@ -112,9 +112,6 @@ export const pots: Pot[] = [
   },
 ];
 
-export const activePot = pots.find((p) => p.status === 'active')!;
-export const settledPot = pots.find((p) => p.status === 'settled')!;
-
 /** Pot preview returned when someone enters an invite code. */
 export const joinablePot = {
   code: 'RUN-2290',
