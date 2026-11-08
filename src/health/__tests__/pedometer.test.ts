@@ -1,3 +1,11 @@
+import {
+  PedometerStepSource,
+  getLiveCount,
+  resetLiveCount,
+  startLiveCount,
+} from '../pedometer';
+import { toDayKey } from '../types';
+
 const mockIsAvailableAsync = jest.fn();
 const mockGetPermissionsAsync = jest.fn();
 const mockRequestPermissionsAsync = jest.fn();
@@ -13,14 +21,6 @@ jest.mock('expo-sensors', () => ({
     watchStepCount: (...args: unknown[]) => mockWatchStepCount(...args),
   },
 }));
-
-import {
-  PedometerStepSource,
-  getLiveCount,
-  resetLiveCount,
-  startLiveCount,
-} from '../pedometer';
-import { toDayKey } from '../types';
 
 describe('src/health/pedometer', () => {
   beforeEach(() => {
