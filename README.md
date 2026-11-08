@@ -32,15 +32,18 @@ synchronous.
 
 ## What works today
 
-|                                         | Demo                 | Live                                              |
-| --------------------------------------- | -------------------- | ------------------------------------------------- |
-| Today, step ring, week grid             | mock steps           | Health Connect or pedometer, synced to the server |
-| Phone sign-in with a six-digit code     | skipped              | yes                                               |
-| Create a pot, invite code, join by code | local                | server, shared with friends                       |
-| Pot standings                           | mock                 | real, from everyone's submitted steps             |
-| Pot chat                                | local to this device | local to this device — no server yet              |
-| Feed, pledges, tipping, sponsored goals | mock                 | mock — not wired to the contract yet              |
-| Wallet                                  | mock                 | mock — no payment provider yet                    |
+|                                           | Demo                 | Live                                                              |
+| ----------------------------------------- | -------------------- | ----------------------------------------------------------------- |
+| Today, step ring, week grid               | mock steps           | Health Connect or pedometer, synced to the server                 |
+| Offline step upload queue                 | n/a                  | queued in storage per `(user, day)` and flushed upon reconnection |
+| Health Connect recovery & Play Store link | mock                 | Play Store deep link + permission recovery on the You tab         |
+| Phone sign-in with a six-digit code       | skipped              | yes                                                               |
+| Persistent onboarding & theme preference  | yes                  | yes — restored before splash hide with zero theme flash           |
+| Create a pot, invite code, join, rematch  | local                | server, shared with friends                                       |
+| Pot standings & pull-to-refresh           | mock                 | real, from everyone's submitted steps                             |
+| Pot chat                                  | local to this device | local to this device — no server yet                              |
+| Feed, pledges, tipping, sponsored goals   | mock                 | mock — not wired to the contract yet                              |
+| Wallet                                    | mock                 | mock — no payment provider yet                                    |
 
 Stakes are **zero** everywhere. The money-free version ships first: it proves
 whether people walk more when their friends are watching, which has to be true
@@ -169,9 +172,12 @@ npm start
 
 ## Environment variables
 
-Later phases add a `.env.example` for things like the API base URL and step-source mode
-(`MockStepSource` vs. `HealthConnectStepSource`). Nothing needs `.env` yet at this stage — this section
-will be filled in as those phases land. `.env` is gitignored; never commit real secrets.
+Copy `.env.example` to `.env` when you want to configure live mode or force a specific step source:
+
+- `EXPO_PUBLIC_API_URL` — base URL of a running `steppal-core` server (leave empty for Demo mode).
+- `EXPO_PUBLIC_STEP_SOURCE` — optional override (`health_connect`, `pedometer`, or `mock`).
+
+`.env` is gitignored; never commit real secrets.
 
 ## Useful scripts
 
@@ -179,6 +185,7 @@ will be filled in as those phases land. `.env` is gitignored; never commit real 
 | ---------------------- | -------------------------------------------------------- |
 | `npm start`            | Start the Metro dev server                               |
 | `npm run android`      | Start dev server and open on a connected device/emulator |
+| `npm test`             | Run the Jest unit test suite                             |
 | `npm run lint`         | ESLint                                                   |
 | `npm run format`       | Prettier — writes fixes                                  |
 | `npm run format:check` | Prettier — check only (used in CI)                       |
@@ -188,20 +195,24 @@ will be filled in as those phases land. `.env` is gitignored; never commit real 
 
 - **Expo** (managed workflow, development build) + **expo-router** (file-based navigation)
 - **NativeWind** (Tailwind classes for React Native styling)
-- **TanStack Query** for server state, **Zustand** for local state
-- **`react-native-health-connect`** for Android step data, behind a `StepSource` interface so an
-  iOS/HealthKit implementation can be added later without touching call sites
-- **expo-secure-store** for auth tokens
-- **`@steppal/sdk`** for all backend calls
+- **`react-native-health-connect`** and **`expo-sensors`** for Android step data, behind a `StepSource`
+  interface so an iOS/HealthKit implementation can be added later without touching call sites
+- **`expo-secure-store`** for auth tokens, offline step queue, onboarding state, and theme persistence
+- **`@steppal/sdk`** (vendored in `src/sdk/`) for all backend calls
+- **Jest** (`jest-expo`) for unit testing stores, API mappings, offline sync, and health sources
 
 ## Project structure
 
 ```
 app/                  expo-router screens (file-based routing)
+src/api/              SDK client, keychain/memory storage, pot mapping, and offline step queue
+src/components/       Shared UI primitives, segmented controls, and pledge cards
+src/health/           StepSource implementations (Health Connect, Pedometer, Mock)
+src/mock/             Deterministic seed data for Demo mode
+src/sdk/              Vendored @steppal/sdk client and types from steppal-core
+src/store/            Synchronous external stores for pots and feed pledges
 CONTRIBUTING-TASKS.md every TODO(contributor) as a ready-to-file issue
 ```
-
-(`lib/` for the `StepSource` interface and SDK client setup arrives in later phases.)
 
 ## License
 

@@ -40,10 +40,10 @@ chore(deps): bump expo-router
 ## Pull requests
 
 - Keep PRs scoped to one `TODO(contributor)` task where possible — small PRs get reviewed faster.
-- Run `npm run lint`, `npm run format:check`, and `npm run typecheck` before opening the PR; CI runs
-  the same checks.
-- Describe what you tested manually (this is a mobile app — most of it can't be unit tested
-  meaningfully without a device or emulator).
+- Run `npm run lint`, `npm run format:check`, `npm run typecheck`, and `npm test` before opening the
+  PR; CI runs the same checks.
+- Add or update unit tests in `__tests__/` when changing store, API, or health source logic, and
+  describe what you tested manually on a device or emulator for UI changes.
 - Every API call must go through `@steppal/sdk`. If you find yourself wanting to `fetch()` the backend
   directly, that almost always means the SDK is missing something — open an issue on `steppal-core`
   instead of working around it here.
