@@ -1,14 +1,8 @@
 /**
  * Mock data for the demo build.
  *
- * Everything the app shows comes from here. When the API lands, this file is
- * what gets replaced — screens read from these shapes, so swapping the source
- * doesn't touch the UI.
- *
- * TODO(contributor): replace with @steppal/sdk calls
- * Each export maps to an endpoint in steppal-core. Keep the shapes identical so
- * screens don't change. Start with todaySteps and activePot.
- * difficulty: medium
+ * When EXPO_PUBLIC_API_URL is unset, stores and step sources read from these
+ * seed values so the app runs offline with zero backend setup.
  */
 
 export type PotMode = 'winner_takes_all' | 'forfeit';
@@ -31,9 +25,6 @@ export const week = [
   { day: 'Tue', steps: 10_880, goalMet: true },
   { day: 'Wed', steps: 8_412, goalMet: false },
 ];
-
-export const todaySteps = 8_412;
-export const lastSynced = '2 min ago';
 
 export type Member = {
   id: string;
